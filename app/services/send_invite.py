@@ -1,17 +1,22 @@
+from pathlib import Path
+
 from google.oauth2.credentials import Credentials
 from google.auth.transport.requests import Request
 from googleapiclient.discovery import build
 
 from core.config import SCOPES
 
+BASE_DIR = Path(__file__).resolve().parent.parent
+TOKEN_FILE = BASE_DIR / "token.json"
+
 
 def get_credentials():
-    credentials = Credentials.from_authorized_user_file("token.json", SCOPES)
+    credentials = Credentials.from_authorized_user_file(str(TOKEN_FILE), SCOPES)
 
     if credentials.expired and credentials.refresh_token:
         credentials.refresh(Request())
 
-        with open("token.json", "w") as token:
+        with open(TOKEN_FILE, "w") as token:
             token.write(credentials.to_json())
 
     return credentials
