@@ -25,20 +25,21 @@ def compare(job_id: str, user_id: str):
 
 # ---------------------------------------------------------
 
+def get_job_data(job_id):
+    job = jobs.find_one({"_id": ObjectId(job_id)})
+
+    if job:
+        job["_id"] = str(job["_id"])
+        return job
+# ---------------------------------------------------------
+
 
 def fetch_my_jobs(user_id: str):
 
     applications = list(jobs_applied_collection.find({"candidate_id": user_id}))
 
     for application in applications:
-
         application["_id"] = str(application["_id"])
-
-        job = jobs.find_one({"_id": ObjectId(application["job_id"])})
-
-        if job:
-            job["_id"] = str(job["_id"])
-            application["job"] = job
 
     return applications
 
@@ -94,6 +95,9 @@ def insert_interview_schedule(
     )
 
 
+# ---------------------------------------------------------
+
+
 def get_email_data(application_id: str):
     application = jobs_applied_collection.find_one({"_id": ObjectId(application_id)})
 
@@ -110,20 +114,26 @@ def get_email_data(application_id: str):
     }
 
 
-def get_my_applications(job_id):
-    applications = list(jobs_applied_collection.find({"job_id": job_id}))
+# ---------------------------------------------------------
+
+
+def get_my_applications(feild,job_id):
+    applications = list(jobs_applied_collection.find({feild: job_id}))
 
     for application in applications:
-        candidate = users_collection.find_one(
-            {"_id": ObjectId(application["candidate_id"])}
-        )
-
-        if candidate:
-            candidate["_id"] = str(candidate["_id"])
-            candidate.pop("password", None)
-
-            application["candidate"] = candidate
-
         application["_id"] = str(application["_id"])
 
     return applications
+
+# ---------------------------------------------------------
+
+
+def fetch_candidate(candidate_id):
+    candidate = users_collection.find_one(
+            {"_id": ObjectId(candidate_id)}
+        )
+
+    if candidate:
+        candidate["_id"] = str(candidate["_id"])
+        candidate.pop("password", None)
+    return candidate

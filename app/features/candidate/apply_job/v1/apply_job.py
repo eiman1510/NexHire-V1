@@ -4,6 +4,7 @@ from db_functions.application import (
     compare,
     insert_applied_job,
     fetch_my_jobs,
+    get_job_data,
 )
 from utils.response import api_response
 from logging_config import logger
@@ -83,6 +84,9 @@ def get_applied_job_v1(user):
         logger.info(f"Fetching applied jobs for candidate {candidate_id}")
 
         result = fetch_my_jobs(candidate_id)
+        for application in result:
+            job=get_job_data(application["job_id"])
+            result["job"]=job
 
         logger.info(f"Applied jobs fetched successfully for candidate {candidate_id}")
 

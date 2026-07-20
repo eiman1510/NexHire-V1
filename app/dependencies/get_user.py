@@ -20,3 +20,4 @@ def get_current_user(credentials: HTTPAuthorizationCredentials = Depends(securit
 
     except Exception:
         raise HTTPException(status_code=401, detail="Invalid token")
+

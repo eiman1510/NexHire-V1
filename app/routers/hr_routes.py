@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 
 from features.hr.application_handler.route import router as application_handler_router
-from app.features.hr.job_handler.route import router as job_handler_router
+from features.hr.job_handler.route import router as job_handler_router
 from features.hr.signup.route import router as hr_signup_router
 
 app = APIRouter()

@@ -5,6 +5,7 @@ from db_functions.application import (
     insert_interview_schedule,
     get_email_data,
     get_my_applications,
+    fetch_candidate
 )
 from utils.emails import (
     interview_email,
@@ -746,7 +747,13 @@ def view_app_applications_v1(job_id):
             f"Fetching applications for Job ID: {job_id}"
         )
 
-        result = get_my_applications(job_id)
+        result = get_my_applications("job_id",job_id)
+        for application in result:
+            candidate = fetch_candidate(
+                application["candidate_id"]
+            )
+            application["candidate"] = candidate
+
 
         logger.info(
             f"Retrieved {len(result)} applications for Job ID: {job_id}"
