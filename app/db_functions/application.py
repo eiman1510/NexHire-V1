@@ -1,4 +1,4 @@
-from core.database import jobs_applied_collection, jobs,users_collection
+from core.database import jobs_applied_collection, jobs, users_collection
 from bson import ObjectId
 from models.job import JobApply
 from .user import find_user
@@ -109,10 +109,9 @@ def get_email_data(application_id: str):
         "job_id": application["job_id"],
     }
 
+
 def get_my_applications(job_id):
-    applications = list(
-        jobs_applied_collection.find({"job_id": job_id})
-    )
+    applications = list(jobs_applied_collection.find({"job_id": job_id}))
 
     for application in applications:
         candidate = users_collection.find_one(

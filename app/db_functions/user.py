@@ -30,17 +30,17 @@ def update_admin(email: str, update_data: dict):
 # ---------------------------------------------------------------------------------------
 
 
-def update_user(user_id, update_data:dict):
+def update_user(user_id, update_data: dict):
     return users_collection.update_one(
         {"_id": ObjectId(user_id)}, {"$set": update_data}
     )
 
+
 def get_profile_data(userid):
-    candidate = users_collection.find_one(
-            {"_id": ObjectId(userid)})
+    candidate = users_collection.find_one({"_id": ObjectId(userid)})
 
     if candidate:
         candidate["_id"] = str(candidate["_id"])
         candidate.pop("password", None)
-    
+
     return candidate

@@ -1,6 +1,7 @@
 from pymongo import MongoClient
+from .config import MONGO_URL
 
-client = MongoClient("mongodb://127.0.0.1:27017")
+client = MongoClient(MONGO_URL)
 db = client["nexhire"]
 users_collection = db["users"]
 admin_collection = db["allowed_hr"]

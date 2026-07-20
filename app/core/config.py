@@ -25,3 +25,5 @@ EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
 SERVICE_ACCOUNT_FILE = BASE_DIR / "google_calendar_secret.json"
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
+
+MONGO_URL = os.getenv("MONGO_URL")

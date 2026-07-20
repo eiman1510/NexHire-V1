@@ -6,7 +6,7 @@ from .v1.application_handler import (
     reject_application_v1,
     send_hiring_email_v1,
     set_initial_meeting_v1,
-    view_app_applications_v1
+    view_app_applications_v1,
 )
 
 router = APIRouter()
