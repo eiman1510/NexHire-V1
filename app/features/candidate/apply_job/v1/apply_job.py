@@ -85,8 +85,8 @@ def get_applied_job_v1(user):
 
         result = fetch_my_jobs(candidate_id)
         for application in result:
-            job=get_job_data(application["job_id"])
-            result["job"]=job
+            job = get_job_data(application["job_id"])
+            result["job"] = job
 
         logger.info(f"Applied jobs fetched successfully for candidate {candidate_id}")
 

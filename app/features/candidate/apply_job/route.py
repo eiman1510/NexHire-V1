@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends
-from dependencies.get_user import get_current_user
+from dependencies.get_api_content import get_request_context
 from .v1.apply_job import job_apply_v1, get_applied_job_v1
 
 router = APIRouter()
@@ -8,13 +8,16 @@ router = APIRouter()
 @router.post("/apply/{job_id}")
 def job_apply(
     job_id: str,
-    user=Depends(get_current_user),
+    context=Depends(get_request_context(job_apply_v1)),
+    
 ):
-    return job_apply_v1(job_id, user)
+    print(context)
+    return job_apply_v1(job_id, context["user"])
 
 
 @router.get("/my_jobs/{user_id}")
 def get_applied_job(
-    user=Depends(get_current_user),
+    context=Depends(get_request_context(get_applied_job_v1)),
 ):
-    return get_applied_job_v1(user)
+    print(context)
+    return get_applied_job_v1(context["user"])

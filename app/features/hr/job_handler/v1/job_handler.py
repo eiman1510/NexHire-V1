@@ -19,13 +19,12 @@ This routes checks is user is an hr
 if yes then allows the user to enter job detail and create a new job
 """
 
+
 def add_job_v1(jobDate: Job, user):
     try:
         current_user = user["id"]
 
-        logger.info(
-            f"Job creation request received from user {current_user}"
-        )
+        logger.info(f"Job creation request received from user {current_user}")
 
         # --------------------------------------------------
         # Validate User
@@ -37,9 +36,7 @@ def add_job_v1(jobDate: Job, user):
         )
 
         if not existing_user:
-            logger.warning(
-                f"User not found. User ID: {current_user}"
-            )
+            logger.warning(f"User not found. User ID: {current_user}")
 
             return api_response(
                 status_code=404,
@@ -53,9 +50,7 @@ def add_job_v1(jobDate: Job, user):
         # Validate HR Approval
         # --------------------------------------------------
 
-        admin_approved = find_email_in_admin(
-            existing_user["email"]
-        )
+        admin_approved = find_email_in_admin(existing_user["email"])
 
         if not admin_approved:
             logger.warning(
@@ -75,9 +70,7 @@ def add_job_v1(jobDate: Job, user):
         # --------------------------------------------------
 
         if not jobDate.title.strip():
-            logger.warning(
-                f"Empty job title provided by user {current_user}"
-            )
+            logger.warning(f"Empty job title provided by user {current_user}")
 
             return api_response(
                 status_code=400,
@@ -88,9 +81,7 @@ def add_job_v1(jobDate: Job, user):
             )
 
         if jobDate.pay <= 0:
-            logger.warning(
-                f"Invalid pay amount provided by user {current_user}"
-            )
+            logger.warning(f"Invalid pay amount provided by user {current_user}")
 
             return api_response(
                 status_code=400,
@@ -100,9 +91,7 @@ def add_job_v1(jobDate: Job, user):
                 error_code=1,
             )
 
-        if jobDate.last_date_to_apply <= datetime.now(
-            timezone.utc
-        ):
+        if jobDate.last_date_to_apply <= datetime.now(timezone.utc):
             logger.warning(
                 f"Invalid application deadline provided by user {current_user}"
             )
@@ -132,20 +121,16 @@ def add_job_v1(jobDate: Job, user):
             pay=jobDate.pay,
         )
 
-        logger.info(
-            f"Creating job '{jobDate.title}' for user {current_user}"
-        )
+        logger.info(f"Creating job '{jobDate.title}' for user {current_user}")
 
         # --------------------------------------------------
         # Insert Job
         # --------------------------------------------------
 
         result = insert_job(newJob)
-
-        if not result:
-            logger.error(
-                f"Job insertion failed for user {current_user}"
-            )
+        
+        if result is None:
+            logger.error(f"Job insertion failed for user {current_user}")
 
             return api_response(
                 status_code=500,
@@ -155,9 +140,7 @@ def add_job_v1(jobDate: Job, user):
                 error_code=1,
             )
 
-        logger.info(
-            f"Job created successfully by user {current_user}"
-        )
+        logger.info(f"Job created successfully by user {current_user}")
 
         return api_response(
             status_code=200,
@@ -180,6 +163,7 @@ def add_job_v1(jobDate: Job, user):
             error_code=1,
         )
 
+
 # ---------------------------------------------------------------------------------------
 # HR ROUTE
 """
@@ -195,9 +179,7 @@ def update_job_v1(
     user=None,
 ):
     try:
-        logger.info(
-            f"Job update requested. Job ID: {job_id}, User ID: {user['id']}"
-        )
+        logger.info(f"Job update requested. Job ID: {job_id}, User ID: {user['id']}")
 
         # --------------------------------------------------
         # Check Job Exists
@@ -209,9 +191,7 @@ def update_job_v1(
         )
 
         if not curr_job:
-            logger.warning(
-                f"Job not found. Job ID: {job_id}"
-            )
+            logger.warning(f"Job not found. Job ID: {job_id}")
 
             return api_response(
                 status_code=404,
@@ -253,9 +233,7 @@ def update_job_v1(
             ]
 
             if status not in valid_status:
-                logger.warning(
-                    f"Invalid status '{status}' for Job ID: {job_id}"
-                )
+                logger.warning(f"Invalid status '{status}' for Job ID: {job_id}")
 
                 return api_response(
                     status_code=400,
@@ -269,12 +247,8 @@ def update_job_v1(
 
         if last_date_to_apply is not None:
 
-            if last_date_to_apply <= datetime.now(
-                timezone.utc
-            ):
-                logger.warning(
-                    f"Invalid application deadline for Job ID: {job_id}"
-                )
+            if last_date_to_apply <= datetime.now(timezone.utc):
+                logger.warning(f"Invalid application deadline for Job ID: {job_id}")
 
                 return api_response(
                     status_code=400,
@@ -284,14 +258,10 @@ def update_job_v1(
                     error_code=1,
                 )
 
-            update_data["last_date_to_apply"] = (
-                last_date_to_apply
-            )
+            update_data["last_date_to_apply"] = last_date_to_apply
 
         if not update_data:
-            logger.warning(
-                f"No update fields provided. Job ID: {job_id}"
-            )
+            logger.warning(f"No update fields provided. Job ID: {job_id}")
 
             return api_response(
                 status_code=400,
@@ -311,9 +281,7 @@ def update_job_v1(
         )
 
         if not result:
-            logger.error(
-                f"Failed to update Job ID: {job_id}"
-            )
+            logger.error(f"Failed to update Job ID: {job_id}")
 
             return api_response(
                 status_code=500,
@@ -323,9 +291,7 @@ def update_job_v1(
                 error_code=1,
             )
 
-        logger.info(
-            f"Job updated successfully. Job ID: {job_id}"
-        )
+        logger.info(f"Job updated successfully. Job ID: {job_id}")
 
         return api_response(
             status_code=200,
@@ -336,9 +302,7 @@ def update_job_v1(
         )
 
     except Exception:
-        logger.exception(
-            f"Unexpected error while updating Job ID: {job_id}"
-        )
+        logger.exception(f"Unexpected error while updating Job ID: {job_id}")
 
         return api_response(
             status_code=500,
@@ -359,9 +323,7 @@ only creator can delete his job
 
 def delete_job_v1(jobId: str, user):
     try:
-        logger.info(
-            f"Job deletion requested. Job ID: {jobId}, User ID: {user['id']}"
-        )
+        logger.info(f"Job deletion requested. Job ID: {jobId}, User ID: {user['id']}")
 
         # --------------------------------------------------
         # Check Job Exists
@@ -373,9 +335,7 @@ def delete_job_v1(jobId: str, user):
         )
 
         if not curr_job:
-            logger.warning(
-                f"Job not found. Job ID: {jobId}"
-            )
+            logger.warning(f"Job not found. Job ID: {jobId}")
 
             return api_response(
                 status_code=404,
@@ -409,9 +369,7 @@ def delete_job_v1(jobId: str, user):
         result = delete_job_id(jobId)
 
         if not result:
-            logger.error(
-                f"Failed to delete Job ID: {jobId}"
-            )
+            logger.error(f"Failed to delete Job ID: {jobId}")
 
             return api_response(
                 status_code=500,
@@ -421,9 +379,7 @@ def delete_job_v1(jobId: str, user):
                 error_code=1,
             )
 
-        logger.info(
-            f"Job deleted successfully. Job ID: {jobId}"
-        )
+        logger.info(f"Job deleted successfully. Job ID: {jobId}")
 
         return api_response(
             status_code=200,
@@ -434,9 +390,7 @@ def delete_job_v1(jobId: str, user):
         )
 
     except Exception:
-        logger.exception(
-            f"Unexpected error while deleting Job ID: {jobId}"
-        )
+        logger.exception(f"Unexpected error while deleting Job ID: {jobId}")
 
         return api_response(
             status_code=500,
@@ -452,16 +406,12 @@ def delete_job_v1(jobId: str, user):
 # returns alls jobs created
 def get_job_details_v1():
     try:
-        logger.info(
-            "Fetching all available jobs"
-        )
+        logger.info("Fetching all available jobs")
 
         jobs = get_all_jobs()
 
         if not jobs:
-            logger.info(
-                "No jobs found"
-            )
+            logger.info("No jobs found")
 
             return api_response(
                 status_code=200,
@@ -471,9 +421,7 @@ def get_job_details_v1():
                 error_code=0,
             )
 
-        logger.info(
-            f"Retrieved {len(jobs)} jobs successfully"
-        )
+        logger.info(f"Retrieved {len(jobs)} jobs successfully")
 
         return api_response(
             status_code=200,
@@ -484,9 +432,7 @@ def get_job_details_v1():
         )
 
     except Exception:
-        logger.exception(
-            "Unexpected error while fetching jobs"
-        )
+        logger.exception("Unexpected error while fetching jobs")
 
         return api_response(
             status_code=500,
@@ -537,9 +483,7 @@ def get_filtered_jobs_v1(
         if min_sal is not None:
 
             if min_sal < 0:
-                logger.warning(
-                    f"Invalid salary filter: {min_sal}"
-                )
+                logger.warning(f"Invalid salary filter: {min_sal}")
 
                 return api_response(
                     status_code=400,
@@ -558,9 +502,7 @@ def get_filtered_jobs_v1(
         if experience is not None:
 
             if experience < 0:
-                logger.warning(
-                    f"Invalid experience filter: {experience}"
-                )
+                logger.warning(f"Invalid experience filter: {experience}")
 
                 return api_response(
                     status_code=400,
@@ -570,9 +512,7 @@ def get_filtered_jobs_v1(
                     error_code=1,
                 )
 
-            query["required_experience"] = {
-                "$lte": experience
-            }
+            query["required_experience"] = {"$lte": experience}
 
         # --------------------------------------------------
         # Validate Job Type
@@ -588,9 +528,7 @@ def get_filtered_jobs_v1(
             ]
 
             if job_type not in valid_job_types:
-                logger.warning(
-                    f"Invalid job type filter: {job_type}"
-                )
+                logger.warning(f"Invalid job type filter: {job_type}")
 
                 return api_response(
                     status_code=400,
@@ -609,9 +547,7 @@ def get_filtered_jobs_v1(
         jobs = get_jobs_by_query(query)
 
         if not jobs:
-            logger.info(
-                "No jobs found matching filters"
-            )
+            logger.info("No jobs found matching filters")
 
             return api_response(
                 status_code=200,
@@ -621,9 +557,7 @@ def get_filtered_jobs_v1(
                 error_code=0,
             )
 
-        logger.info(
-            f"Retrieved {len(jobs)} filtered jobs"
-        )
+        logger.info(f"Retrieved {len(jobs)} filtered jobs")
 
         return api_response(
             status_code=200,
@@ -634,9 +568,7 @@ def get_filtered_jobs_v1(
         )
 
     except Exception:
-        logger.exception(
-            "Unexpected error while filtering jobs"
-        )
+        logger.exception("Unexpected error while filtering jobs")
 
         return api_response(
             status_code=500,
@@ -654,20 +586,14 @@ def get_filtered_jobs_v1(
 
 def get_all_created_job_v1(user):
     try:
-        logger.info(
-            f"Fetching jobs created by HR. User ID: {user['id']}"
-        )
+        logger.info(f"Fetching jobs created by HR. User ID: {user['id']}")
 
-        query = {
-            "created_by": user["id"]
-        }
+        query = {"created_by": user["id"]}
 
         jobs = get_jobs_by_query(query)
 
         if not jobs:
-            logger.info(
-                f"No jobs found for HR User ID: {user['id']}"
-            )
+            logger.info(f"No jobs found for HR User ID: {user['id']}")
 
             return api_response(
                 status_code=200,
@@ -677,9 +603,7 @@ def get_all_created_job_v1(user):
                 error_code=0,
             )
 
-        logger.info(
-            f"Retrieved {len(jobs)} jobs for HR User ID: {user['id']}"
-        )
+        logger.info(f"Retrieved {len(jobs)} jobs for HR User ID: {user['id']}")
 
         return api_response(
             status_code=200,

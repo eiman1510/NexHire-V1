@@ -9,6 +9,6 @@ from routers.login_route import app as login_app
 
 app = FastAPI()
 
+app.include_router(login_app)
 app.include_router(hr_app)
 app.include_router(candidate_app)
-app.include_router(login_app)

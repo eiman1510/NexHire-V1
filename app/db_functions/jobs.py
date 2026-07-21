@@ -3,7 +3,8 @@ from bson import ObjectId
 
 
 def insert_job(jobDate):
-    jobs.insert_one(jobDate.model_dump())
+    result=jobs.insert_one(jobDate.model_dump())
+    return result
 
 
 # ---------------------------------------------------------------------------------------
@@ -24,7 +25,7 @@ def update_job_id(id, update_data):
 
 
 def delete_job_id(jobid):
-    jobs.delete_one({"_id": ObjectId(jobid)})
+    return jobs.delete_one({"_id": ObjectId(jobid)})
 
 
 # ---------------------------------------------------------------------------------------

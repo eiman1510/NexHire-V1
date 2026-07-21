@@ -1,7 +1,7 @@
 from fastapi import APIRouter
 from models.job import Job
 from fastapi import Depends
-from dependencies.get_user import get_current_user
+from dependencies.get_api_content import get_request_context
 from .v1.job_handler import (
     add_job_v1,
     update_job_v1,
@@ -18,9 +18,10 @@ router = APIRouter()
 @router.post("/add_job")
 def add_job(
     jobDate: Job,
-    user=Depends(get_current_user),
+    context=Depends(get_request_context(add_job_v1)),
 ):
-    return add_job_v1(jobDate, user)
+    print(context)
+    return add_job_v1(jobDate, context["user"])
 
 
 # ---------------------------------------------------------------------------------------
@@ -31,17 +32,19 @@ def update_job(
     job_id: str,
     status: str | None = None,
     last_date_to_apply: datetime | None = None,
-    user=Depends(get_current_user),
+    context=Depends(get_request_context(update_job_v1)),
 ):
-    return update_job_v1(job_id, status, last_date_to_apply, user)
+    print(context)
+    return update_job_v1(job_id, status, last_date_to_apply,context["user"])
 
 
 # -------------------------------------------------------------------
 
 
 @router.delete("/delete_job")
-def delete_job(jobId: str, user=Depends(get_current_user)):
-    return delete_job_v1(jobId, user)
+def delete_job(jobId: str, context=Depends(get_request_context(delete_job_v1))):
+    print(context)
+    return delete_job_v1(jobId, context["user"])
 
 
 # ---------------------------------------------------------------------
@@ -74,5 +77,6 @@ def get_filtered_jobs(
 # HR
 # return all jobs created by an hr
 @router.get("/my_created_jobs")
-def get_all_created_job(user=Depends(get_current_user)):
-    return get_all_created_job_v1(user)
+def get_all_created_job(context=Depends(get_request_context(get_all_created_job_v1))):
+    print(context)
+    return get_all_created_job_v1(context["user"])

@@ -5,7 +5,7 @@ from db_functions.application import (
     insert_interview_schedule,
     get_email_data,
     get_my_applications,
-    fetch_candidate
+    fetch_candidate,
 )
 from utils.emails import (
     interview_email,
@@ -16,7 +16,6 @@ from utils.emails import (
 from utils.response import api_response
 from services.send_invite import create_calendar_event
 from logging_config import logger
-
 
 # ---------------------------------------------------------
 # HR Helper function FUNCTION
@@ -49,16 +48,12 @@ def update_job_status(job_id: str, stat: str, user_id):
 
         update_status(stat, job_id)
 
-        logger.info(
-            f"Status updated successfully. Job ID: {job_id}, Status: {stat}"
-        )
+        logger.info(f"Status updated successfully. Job ID: {job_id}, Status: {stat}")
 
         return True
 
     except Exception:
-        logger.exception(
-            f"Error updating status. Job ID: {job_id}, Status: {stat}"
-        )
+        logger.exception(f"Error updating status. Job ID: {job_id}, Status: {stat}")
         raise
 
 
@@ -77,9 +72,7 @@ def schedule_interview_v1(
     user,
 ):
     try:
-        logger.info(
-            f"Interview scheduling initiated. Job ID: {job_id}"
-        )
+        logger.info(f"Interview scheduling initiated. Job ID: {job_id}")
 
         # --------------------------------------------------
         # Schedule Interview
@@ -105,9 +98,7 @@ def schedule_interview_v1(
                 error_code=1,
             )
 
-        logger.info(
-            f"Interview schedule inserted successfully. Job ID: {job_id}"
-        )
+        logger.info(f"Interview schedule inserted successfully. Job ID: {job_id}")
 
         # --------------------------------------------------
         # Update Status
@@ -120,12 +111,9 @@ def schedule_interview_v1(
         )
 
         if status_result is not True:
-            logger.warning(
-                f"Failed to update interview status. Job ID: {job_id}"
-            )
+            logger.warning(f"Failed to update interview status. Job ID: {job_id}")
 
             return status_result
-      
 
         # --------------------------------------------------
         # Get Candidate Data
@@ -134,9 +122,7 @@ def schedule_interview_v1(
         response = get_email_data(job_id)
 
         if not response:
-            logger.warning(
-                f"No candidate email data found. Job ID: {job_id}"
-            )
+            logger.warning(f"No candidate email data found. Job ID: {job_id}")
 
             return api_response(
                 status_code=404,
@@ -146,9 +132,7 @@ def schedule_interview_v1(
                 error_code=1,
             )
 
-        logger.info(
-            f"Candidate email data retrieved. Job ID: {job_id}"
-        )
+        logger.info(f"Candidate email data retrieved. Job ID: {job_id}")
 
         # --------------------------------------------------
         # Send Email (Critical)
@@ -163,14 +147,10 @@ def schedule_interview_v1(
                 interview_time,
             )
 
-            logger.info(
-                f"Interview email sent to {response['receiver_mail']}"
-            )
+            logger.info(f"Interview email sent to {response['receiver_mail']}")
 
         except Exception:
-            logger.exception(
-                f"Failed to send interview email. Job ID: {job_id}"
-            )
+            logger.exception(f"Failed to send interview email. Job ID: {job_id}")
 
             return api_response(
                 status_code=500,
@@ -202,26 +182,18 @@ def schedule_interview_v1(
                 end_dt.isoformat(),
             )
 
-            logger.info(
-                f"Calendar invite created for {response['receiver_mail']}"
-            )
+            logger.info(f"Calendar invite created for {response['receiver_mail']}")
 
         except Exception:
-            logger.exception(
-                f"Failed to create calendar invite. Job ID: {job_id}"
-            )
+            logger.exception(f"Failed to create calendar invite. Job ID: {job_id}")
 
-            warnings.append(
-                "Calendar invite could not be generated"
-            )
+            warnings.append("Calendar invite could not be generated")
 
         # --------------------------------------------------
         # Success
         # --------------------------------------------------
 
-        logger.info(
-            f"Interview scheduled successfully. Job ID: {job_id}"
-        )
+        logger.info(f"Interview scheduled successfully. Job ID: {job_id}")
 
         return api_response(
             status_code=200,
@@ -256,9 +228,7 @@ This rejects application and sends a rejection email
 
 def reject_application_v1(job_id: str, user):
     try:
-        logger.info(
-            f"Starting rejection process for Job ID: {job_id}"
-        )
+        logger.info(f"Starting rejection process for Job ID: {job_id}")
 
         # --------------------------------------------------
         # Get Candidate Data
@@ -267,9 +237,7 @@ def reject_application_v1(job_id: str, user):
         response = get_email_data(job_id)
 
         if not response:
-            logger.warning(
-                f"No candidate data found for Job ID: {job_id}"
-            )
+            logger.warning(f"No candidate data found for Job ID: {job_id}")
 
             return api_response(
                 status_code=404,
@@ -279,9 +247,7 @@ def reject_application_v1(job_id: str, user):
                 error_code=1,
             )
 
-        logger.info(
-            f"Candidate data retrieved for Job ID: {job_id}"
-        )
+        logger.info(f"Candidate data retrieved for Job ID: {job_id}")
 
         # --------------------------------------------------
         # Update Status (Critical)
@@ -294,18 +260,14 @@ def reject_application_v1(job_id: str, user):
         )
 
         if status_result is not True:
-            logger.warning(
-                f"Failed to update rejection status. Job ID: {job_id}"
-            )
+            logger.warning(f"Failed to update rejection status. Job ID: {job_id}")
 
             return status_result
 
-        logger.info(
-            f"Application status updated to Rejected. Job ID: {job_id}"
-        )
+        logger.info(f"Application status updated to Rejected. Job ID: {job_id}")
 
         # --------------------------------------------------
-        # Send Rejection Email 
+        # Send Rejection Email
         # --------------------------------------------------
 
         try:
@@ -316,14 +278,11 @@ def reject_application_v1(job_id: str, user):
             )
 
             logger.info(
-                f"Rejection email sent successfully to "
-                f"{response['receiver_mail']}"
+                f"Rejection email sent successfully to " f"{response['receiver_mail']}"
             )
 
         except Exception:
-            logger.exception(
-                f"Failed to send rejection email for Job ID: {job_id}"
-            )
+            logger.exception(f"Failed to send rejection email for Job ID: {job_id}")
 
             return api_response(
                 status_code=500,
@@ -337,9 +296,7 @@ def reject_application_v1(job_id: str, user):
         # Success
         # --------------------------------------------------
 
-        logger.info(
-            f"Rejection process completed successfully. Job ID: {job_id}"
-        )
+        logger.info(f"Rejection process completed successfully. Job ID: {job_id}")
 
         return api_response(
             status_code=200,
@@ -361,6 +318,7 @@ def reject_application_v1(job_id: str, user):
             error_code=1,
         )
 
+
 # ---------------------------------------------------------
 # HR FUNCTION
 """
@@ -376,18 +334,14 @@ def set_initial_meeting_v1(
     user,
 ):
     try:
-        logger.info(
-            f"Starting initial assessment setup for Job ID: {job_id}"
-        )
+        logger.info(f"Starting initial assessment setup for Job ID: {job_id}")
 
         # --------------------------------------------------
         # Get Candidate Data
         # --------------------------------------------------
 
         if not interview_link or not interview_link.strip():
-            logger.warning(
-                f"Assessment link missing for Job ID: {job_id}"
-            )
+            logger.warning(f"Assessment link missing for Job ID: {job_id}")
 
             return api_response(
                 status_code=400,
@@ -400,9 +354,7 @@ def set_initial_meeting_v1(
         response = get_email_data(job_id)
 
         if not response:
-            logger.warning(
-                f"No candidate data found for Job ID: {job_id}"
-            )
+            logger.warning(f"No candidate data found for Job ID: {job_id}")
 
             return api_response(
                 status_code=404,
@@ -412,9 +364,7 @@ def set_initial_meeting_v1(
                 error_code=1,
             )
 
-        logger.info(
-            f"Candidate data retrieved for Job ID: {job_id}"
-        )
+        logger.info(f"Candidate data retrieved for Job ID: {job_id}")
 
         # --------------------------------------------------
         # Update Status
@@ -427,15 +377,11 @@ def set_initial_meeting_v1(
         )
 
         if status_result is not True:
-            logger.warning(
-                f"Failed to update application status. Job ID: {job_id}"
-            )
+            logger.warning(f"Failed to update application status. Job ID: {job_id}")
 
             return status_result
 
-        logger.info(
-            f"Application status updated to In Process. Job ID: {job_id}"
-        )
+        logger.info(f"Application status updated to In Process. Job ID: {job_id}")
 
         # --------------------------------------------------
         # Send Assessment Email (Critical)
@@ -452,14 +398,11 @@ def set_initial_meeting_v1(
             )
 
             logger.info(
-                f"Assessment email sent successfully to "
-                f"{response['receiver_mail']}"
+                f"Assessment email sent successfully to " f"{response['receiver_mail']}"
             )
 
         except Exception:
-            logger.exception(
-                f"Failed to send assessment email for Job ID: {job_id}"
-            )
+            logger.exception(f"Failed to send assessment email for Job ID: {job_id}")
 
             return api_response(
                 status_code=500,
@@ -490,8 +433,7 @@ def set_initial_meeting_v1(
             )
 
             logger.info(
-                f"Assessment calendar event created for "
-                f"{response['receiver_mail']}"
+                f"Assessment calendar event created for " f"{response['receiver_mail']}"
             )
 
         except Exception:
@@ -503,9 +445,7 @@ def set_initial_meeting_v1(
         # Success
         # --------------------------------------------------
 
-        logger.info(
-            f"Initial assessment scheduled successfully for Job ID: {job_id}"
-        )
+        logger.info(f"Initial assessment scheduled successfully for Job ID: {job_id}")
 
         return api_response(
             status_code=200,
@@ -526,6 +466,8 @@ def set_initial_meeting_v1(
             api_source="application_handler",
             error_code=1,
         )
+
+
 # ---------------------------------------------------------
 # HR FUNCTION
 """
@@ -543,18 +485,14 @@ def send_hiring_email_v1(
     user,
 ):
     try:
-        logger.info(
-            f"Starting hiring process for Job ID: {job_id}"
-        )
+        logger.info(f"Starting hiring process for Job ID: {job_id}")
 
         # --------------------------------------------------
         # Validate Inputs
         # --------------------------------------------------
 
         if start < date.today():
-            logger.warning(
-                f"Invalid joining date for Job ID: {job_id}"
-            )
+            logger.warning(f"Invalid joining date for Job ID: {job_id}")
 
             return api_response(
                 status_code=400,
@@ -565,9 +503,7 @@ def send_hiring_email_v1(
             )
 
         if pay <= 0:
-            logger.warning(
-                f"Invalid pay amount for Job ID: {job_id}"
-            )
+            logger.warning(f"Invalid pay amount for Job ID: {job_id}")
 
             return api_response(
                 status_code=400,
@@ -578,9 +514,7 @@ def send_hiring_email_v1(
             )
 
         if not timings or not timings.strip():
-            logger.warning(
-                f"Missing timings for Job ID: {job_id}"
-            )
+            logger.warning(f"Missing timings for Job ID: {job_id}")
 
             return api_response(
                 status_code=400,
@@ -591,9 +525,7 @@ def send_hiring_email_v1(
             )
 
         if not working_days or not working_days.strip():
-            logger.warning(
-                f"Missing working days for Job ID: {job_id}"
-            )
+            logger.warning(f"Missing working days for Job ID: {job_id}")
 
             return api_response(
                 status_code=400,
@@ -610,9 +542,7 @@ def send_hiring_email_v1(
         response = get_email_data(job_id)
 
         if not response:
-            logger.warning(
-                f"No candidate data found for Job ID: {job_id}"
-            )
+            logger.warning(f"No candidate data found for Job ID: {job_id}")
 
             return api_response(
                 status_code=404,
@@ -622,9 +552,7 @@ def send_hiring_email_v1(
                 error_code=1,
             )
 
-        logger.info(
-            f"Candidate data retrieved for Job ID: {job_id}"
-        )
+        logger.info(f"Candidate data retrieved for Job ID: {job_id}")
 
         # --------------------------------------------------
         # Update Status
@@ -637,15 +565,11 @@ def send_hiring_email_v1(
         )
 
         if status_result is not True:
-            logger.warning(
-                f"Failed to update status to Hired. Job ID: {job_id}"
-            )
+            logger.warning(f"Failed to update status to Hired. Job ID: {job_id}")
 
             return status_result
 
-        logger.info(
-            f"Application status updated to Hired. Job ID: {job_id}"
-        )
+        logger.info(f"Application status updated to Hired. Job ID: {job_id}")
 
         # --------------------------------------------------
         # Send Hiring Email (Critical)
@@ -663,14 +587,11 @@ def send_hiring_email_v1(
             )
 
             logger.info(
-                f"Hiring email sent successfully to "
-                f"{response['receiver_mail']}"
+                f"Hiring email sent successfully to " f"{response['receiver_mail']}"
             )
 
         except Exception:
-            logger.exception(
-                f"Failed to send hiring email for Job ID: {job_id}"
-            )
+            logger.exception(f"Failed to send hiring email for Job ID: {job_id}")
 
             return api_response(
                 status_code=500,
@@ -697,8 +618,7 @@ def send_hiring_email_v1(
             )
 
             logger.info(
-                f"Joining calendar event created for "
-                f"{response['receiver_mail']}"
+                f"Joining calendar event created for " f"{response['receiver_mail']}"
             )
 
         except Exception:
@@ -710,9 +630,7 @@ def send_hiring_email_v1(
         # Success
         # --------------------------------------------------
 
-        logger.info(
-            f"Candidate hired successfully for Job ID: {job_id}"
-        )
+        logger.info(f"Candidate hired successfully for Job ID: {job_id}")
 
         return api_response(
             status_code=200,
@@ -734,6 +652,7 @@ def send_hiring_email_v1(
             error_code=1,
         )
 
+
 # ---------------------------------------------------------
 # HR FUNCTION
 """
@@ -743,21 +662,14 @@ View all applications for a job
 
 def view_app_applications_v1(job_id):
     try:
-        logger.info(
-            f"Fetching applications for Job ID: {job_id}"
-        )
+        logger.info(f"Fetching applications for Job ID: {job_id}")
 
-        result = get_my_applications("job_id",job_id)
+        result = get_my_applications("job_id", job_id)
         for application in result:
-            candidate = fetch_candidate(
-                application["candidate_id"]
-            )
+            candidate = fetch_candidate(application["candidate_id"])
             application["candidate"] = candidate
 
-
-        logger.info(
-            f"Retrieved {len(result)} applications for Job ID: {job_id}"
-        )
+        logger.info(f"Retrieved {len(result)} applications for Job ID: {job_id}")
 
         return api_response(
             status_code=200,
@@ -767,9 +679,7 @@ def view_app_applications_v1(job_id):
         )
 
     except Exception:
-        logger.exception(
-            f"Error retrieving applications for Job ID: {job_id}"
-        )
+        logger.exception(f"Error retrieving applications for Job ID: {job_id}")
 
         return api_response(
             status_code=500,
