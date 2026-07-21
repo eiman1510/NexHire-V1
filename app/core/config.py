@@ -38,3 +38,5 @@ FEATURES = {
     "hr:signup": "v1",
     "login": "v1",
     }
+
+RESUME_API_KEY = os.getenv("RESUME_API_KEY")
