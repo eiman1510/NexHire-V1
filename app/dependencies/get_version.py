@@ -18,9 +18,15 @@ def load_function(feature_key, module_name, function_name):
     if not version:
         raise ValueError(f"No version configured for {feature_key}")
 
+    if feature_key == "login":
+        package_name = "features.login"
+    else:
+        section, feature = feature_key.split(":", 1)
+        package_name = f"features.{section}.{feature}"
+
     module = importlib.import_module(
         f".{version}.{module_name}",
-        package="features.candidate.apply_job"
+        package=package_name
     )
 
     return getattr(module, function_name)
