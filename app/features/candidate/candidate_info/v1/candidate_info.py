@@ -11,7 +11,7 @@ from logging_config import logger
 # ----------------------------------------------------------------------------------------
 
 
-def submit_candidate_data_v1(
+def submit_candidate_data_helper(
     resume: UploadFile = File(...),
     experience: int = Form(...),
     skills: str = Form(...),
@@ -82,7 +82,7 @@ def submit_candidate_data_v1(
 # ----------------------------------------------------------------------------------------
 
 
-def update_candidate_data_v1(
+def update_candidate_data_helper(
     resume: UploadFile = File(None),
     experience: int = Form(None),
     skills: str = Form(None),
@@ -171,7 +171,7 @@ def update_candidate_data_v1(
 # ----------------------------------------------------------------------------------------
 
 
-def get_user_data_v1(user_id):
+def get_user_data_helper(user_id):
     try:
         logger.info(f"Fetching profile data for candidate {user_id['id']}")
 

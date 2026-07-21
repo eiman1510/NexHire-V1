@@ -7,7 +7,7 @@ from utils.response import api_response
 from logging_config import logger
 
 
-def candidatesignup_v1(user: userSignup):
+def candidatesignup_helper(user: userSignup):
     try:
         logger.info(f"Candidate signup attempt for email: {user.email}")
 

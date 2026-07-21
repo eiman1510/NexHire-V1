@@ -5,7 +5,7 @@ from logging_config import logger
 
 # BOTH CAN CALL THIS API
 # returns all jobs created
-def get_job_details_v1():
+def get_job_details_helper():
     try:
         logger.info("Fetching all jobs")
 
@@ -39,7 +39,7 @@ def get_job_details_v1():
 no use case for now, will complete it if needed
 """
 
-# def get_job_v1(jobId: str):
+# def get_job_helper(jobId: str):
 #
 #     curr_job = find_in_job("_id",ObjectId(jobId))
 #
@@ -65,7 +65,7 @@ no use case for now, will complete it if needed
 # for getting jobs based on some specific filter
 
 
-def get_filtered_jobs_v1(
+def get_filtered_jobs_helper(
     min_sal: int | None = None,
     experience: int | None = None,
     job_type: str | None = None,

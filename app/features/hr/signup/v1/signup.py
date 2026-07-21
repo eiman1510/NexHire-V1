@@ -12,7 +12,7 @@ from utils.response import api_response
 from logging_config import logger
 
 
-def hr_signup_v1(user: userSignup):
+def hr_signup_helper(user: userSignup):
     try:
         admin_approved = find_email_in_admin(user.email)
 

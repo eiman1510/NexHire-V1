@@ -20,7 +20,7 @@ if yes then allows the user to enter job detail and create a new job
 """
 
 
-def add_job_v1(jobDate: Job, user):
+def add_job_helper(jobDate: Job, user):
     try:
         current_user = user["id"]
 
@@ -172,7 +172,7 @@ only creator can edit/update his job
 """
 
 
-def update_job_v1(
+def update_job_helper(
     job_id: str,
     status: str | None = None,
     last_date_to_apply: datetime | None = None,
@@ -321,7 +321,7 @@ only creator can delete his job
 """
 
 
-def delete_job_v1(jobId: str, user):
+def delete_job_helper(jobId: str, user):
     try:
         logger.info(f"Job deletion requested. Job ID: {jobId}, User ID: {user['id']}")
 
@@ -404,7 +404,7 @@ def delete_job_v1(jobId: str, user):
 # ---------------------------------------------------------------------
 # BOTH CAN CALL THIS API
 # returns alls jobs created
-def get_job_details_v1():
+def get_job_details_helper():
     try:
         logger.info("Fetching all available jobs")
 
@@ -449,7 +449,7 @@ def get_job_details_v1():
 no use case for now,will complete it if needed
 """
 
-# def get_job_v1(jobId: str):
+# def get_job_helper(jobId: str):
 
 #     curr_job = find_in_job("_id",ObjectId(jobId))
 
@@ -464,7 +464,7 @@ no use case for now,will complete it if needed
 # for getting jobs based on some specific filter
 
 
-def get_filtered_jobs_v1(
+def get_filtered_jobs_helper(
     min_sal: int | None = None,
     experience: int | None = None,
     job_type: str | None = None,
@@ -584,7 +584,7 @@ def get_filtered_jobs_v1(
 # return all jobs created by an hr
 
 
-def get_all_created_job_v1(user):
+def get_all_created_job_helper(user):
     try:
         logger.info(f"Fetching jobs created by HR. User ID: {user['id']}")
 

@@ -3,12 +3,12 @@ from models.job import Job
 from fastapi import Depends
 from dependencies.get_api_content import get_request_context
 from .v1.job_handler import (
-    add_job_v1,
-    update_job_v1,
-    delete_job_v1,
-    get_job_details_v1,
-    get_all_created_job_v1,
-    get_filtered_jobs_v1,
+    add_job_helper,
+    update_job_helper,
+    delete_job_helper,
+    get_job_details_helper,
+    get_all_created_job_helper,
+    get_filtered_jobs_helper,
 )
 from datetime import datetime
 
@@ -18,10 +18,10 @@ router = APIRouter()
 @router.post("/add_job")
 def add_job(
     jobDate: Job,
-    context=Depends(get_request_context(add_job_v1)),
+    context=Depends(get_request_context(add_job_helper)),
 ):
     print(context)
-    return add_job_v1(jobDate, context["user"])
+    return add_job_helper(jobDate, context["user"])
 
 
 # ---------------------------------------------------------------------------------------
@@ -32,19 +32,19 @@ def update_job(
     job_id: str,
     status: str | None = None,
     last_date_to_apply: datetime | None = None,
-    context=Depends(get_request_context(update_job_v1)),
+    context=Depends(get_request_context(update_job_helper)),
 ):
     print(context)
-    return update_job_v1(job_id, status, last_date_to_apply,context["user"])
+    return update_job_helper(job_id, status, last_date_to_apply,context["user"])
 
 
 # -------------------------------------------------------------------
 
 
 @router.delete("/delete_job")
-def delete_job(jobId: str, context=Depends(get_request_context(delete_job_v1))):
+def delete_job(jobId: str, context=Depends(get_request_context(delete_job_helper))):
     print(context)
-    return delete_job_v1(jobId, context["user"])
+    return delete_job_helper(jobId, context["user"])
 
 
 # ---------------------------------------------------------------------
@@ -52,7 +52,7 @@ def delete_job(jobId: str, context=Depends(get_request_context(delete_job_v1))):
 
 @router.get("/alljobs")
 def get_job_details():
-    return get_job_details_v1()
+    return get_job_details_helper()
 
 
 # -------------------------------------------------------------
@@ -70,13 +70,13 @@ def get_filtered_jobs(
     experience: int | None = None,
     job_type: str | None = None,
 ):
-    return get_filtered_jobs_v1(min_sal, experience, job_type)
+    return get_filtered_jobs_helper(min_sal, experience, job_type)
 
 
 # ---------------------------------------------------------
 # HR
 # return all jobs created by an hr
 @router.get("/my_created_jobs")
-def get_all_created_job(context=Depends(get_request_context(get_all_created_job_v1))):
+def get_all_created_job(context=Depends(get_request_context(get_all_created_job_helper))):
     print(context)
-    return get_all_created_job_v1(context["user"])
+    return get_all_created_job_helper(context["user"])

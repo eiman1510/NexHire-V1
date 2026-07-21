@@ -64,7 +64,7 @@ This function schedules interviews and sends email to user about interview detai
 """
 
 
-def schedule_interview_v1(
+def schedule_interview_helper(
     job_id: str,
     interview_date: date,
     interview_time: time,
@@ -226,7 +226,7 @@ This rejects application and sends a rejection email
 """
 
 
-def reject_application_v1(job_id: str, user):
+def reject_application_helper(job_id: str, user):
     try:
         logger.info(f"Starting rejection process for Job ID: {job_id}")
 
@@ -326,7 +326,7 @@ This sets up the initial online test or online assessment
 """
 
 
-def set_initial_meeting_v1(
+def set_initial_meeting_helper(
     job_id: str,
     interview_link: str,
     interview_date: date,
@@ -475,7 +475,7 @@ Final hiring email
 """
 
 
-def send_hiring_email_v1(
+def send_hiring_email_helper(
     job_id: str,
     start: date,
     time: time,
@@ -660,7 +660,7 @@ View all applications for a job
 """
 
 
-def view_app_applications_v1(job_id):
+def view_app_applications_helper(job_id):
     try:
         logger.info(f"Fetching applications for Job ID: {job_id}")
 

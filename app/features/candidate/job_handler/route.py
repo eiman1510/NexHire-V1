@@ -1,12 +1,12 @@
 from fastapi import APIRouter
-from .v1.job_handler import get_job_details_v1, get_filtered_jobs_v1
+from .v1.job_handler import get_job_details_helper, get_filtered_jobs_helper
 
 router = APIRouter()
 
 
 @router.get("/alljobs")
 def get_job_details():
-    return get_job_details_v1()
+    return get_job_details_helper()
 
 
 # -------------------------------------------------------------
@@ -24,4 +24,4 @@ def get_filtered_jobs(
     experience: int | None = None,
     job_type: str | None = None,
 ):
-    return get_filtered_jobs_v1(min_sal, experience, job_type)
+    return get_filtered_jobs_helper(min_sal, experience, job_type)

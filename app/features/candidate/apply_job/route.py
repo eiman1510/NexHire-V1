@@ -1,6 +1,32 @@
+# from fastapi import APIRouter, Depends
+# from dependencies.get_api_content import get_request_context
+# from .v1.apply_job import job_apply_helper, get_applied_job_helper
+
+# router = APIRouter()
+
+
+# @router.post("/apply/{job_id}")
+# def job_apply(
+#     job_id: str,
+#     context=Depends(get_request_context(job_apply_helper)),
+    
+# ):
+#     print(context)
+#     return job_apply_helper(job_id, context["user"])
+
+
+# @router.get("/my_jobs/{user_id}")
+# def get_applied_job(
+#     context=Depends(get_request_context(get_applied_job_helper)),
+# ):
+#     print(context)
+#     return get_applied_job_helper(context["user"])
+
+
 from fastapi import APIRouter, Depends
+
 from dependencies.get_api_content import get_request_context
-from .v1.apply_job import job_apply_v1, get_applied_job_v1
+from dependencies.get_version import load_function
 
 router = APIRouter()
 
@@ -8,16 +34,25 @@ router = APIRouter()
 @router.post("/apply/{job_id}")
 def job_apply(
     job_id: str,
-    context=Depends(get_request_context(job_apply_v1)),
-    
+    context = Depends(get_request_context())
 ):
-    print(context)
-    return job_apply_v1(job_id, context["user"])
+    job_apply_helper = load_function(
+        feature_key="candidate:apply_job",
+        module_name="apply_job",
+        function_name="job_apply_helper"
+    )
+
+    return job_apply_helper(job_id, context["user"])
 
 
 @router.get("/my_jobs/{user_id}")
-def get_applied_job(
-    context=Depends(get_request_context(get_applied_job_v1)),
-):
-    print(context)
-    return get_applied_job_v1(context["user"])
+def get_applied_job(context = Depends(get_request_context())):
+
+    
+    get_applied_job_helper = load_function(
+        feature_key="candidate:apply_job",
+        module_name="apply_job",
+        function_name="get_applied_job_helper"
+    )
+
+    return get_applied_job_helper(context["user"])

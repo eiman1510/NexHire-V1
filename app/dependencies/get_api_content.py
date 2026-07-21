@@ -22,21 +22,35 @@ def get_auth_type():
     return "jwt"
 
 
-def get_api_version(handler):
-    """
-    Extracts version from imported module path.
-    Example:
-    features.hr.job_handler.v1.job_handler
-    """
-    module = handler.__module__
+# def get_api_version(handler):
+#     """
+#     Extracts version from imported module path.
+#     Example:
+#     features.hr.job_handler.v1.job_handler
+#     """
+#     module = handler.__module__
 
-    match = re.search(r"\.v(\d+)\.", module)
+#     features = {
+#         "candidate:apply_job": "v1",
+#         "candidate:candidate_info": "v1",
+#         "candidate:job_handler": "v1",
+#         "candidate:signup": "v1",
+#         "hr:application_handler": "v1",
+#         "hr:job_handler": "v1",
+#         "hr:signup": "v1",
+#         "login": "v1",
+#     }
 
-    if match:
-        return f"v{match.group(1)}"
+#     parts = module.split(".")
+#     if parts[:1] == ["features"]:
+#         if len(parts) >= 2 and parts[1] == "login":
+#             return features.get("login", "unknown")
 
-    return "unknown"
+#         if len(parts) >= 3:
+#             feature_key = f"{parts[1]}:{parts[2]}"
+#             return features.get(feature_key, "unknown")
 
+#     return "unknown"
 
 def get_user_payload(
     token: str = Depends(get_token)
@@ -56,7 +70,7 @@ def get_user_payload(
         )
 
 
-def get_request_context(handler):
+def get_request_context(paylaod=None):
     """
     Returns everything required by routes.
     """
@@ -67,7 +81,7 @@ def get_request_context(handler):
         return {
             "user": payload,
             "auth_type": get_auth_type(),
-            "api_version": get_api_version(handler)
+            # "api_version": get_api_version(handler)
         }
 
     return dependency

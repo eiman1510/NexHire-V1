@@ -17,7 +17,7 @@ if not then apply for job else states already applied
 """
 
 
-def job_apply_v1(job_id: str, user):
+def job_apply_helper(job_id: str, user):
     try:
         candidate_id = user["id"]
 
@@ -77,7 +77,7 @@ Return all jobs a specific user has applied for
 """
 
 
-def get_applied_job_v1(user):
+def get_applied_job_helper(user):
     try:
         candidate_id = user["id"]
 
@@ -86,7 +86,7 @@ def get_applied_job_v1(user):
         result = fetch_my_jobs(candidate_id)
         for application in result:
             job = get_job_data(application["job_id"])
-            result["job"] = job
+            application["job"] = job
 
         logger.info(f"Applied jobs fetched successfully for candidate {candidate_id}")
 
