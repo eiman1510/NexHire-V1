@@ -2,7 +2,7 @@ from core.security.password_hashing import hashpass
 from core.security.jwt import generate_access_key
 from models.user import userSignup, User
 from datetime import datetime, timezone
-from db_functions.user import find_user, insert_in_user
+from db_functions.user import find_email_in_admin, find_user, insert_in_user
 from utils.response import api_response
 from logging_config import logger
 
@@ -10,6 +10,18 @@ from logging_config import logger
 def candidatesignup_helper(user: userSignup):
     try:
         logger.info(f"Candidate signup attempt for email: {user.email}")
+
+        if find_email_in_admin(user.email):
+            logger.warning(
+                f"HR email attempted candidate signup: {user.email}"
+            )
+            return api_response(
+                status_code=403,
+                data=None,
+                message="HR email cannot register as a candidate",
+                api_source="/routes/signup/candidate",
+                error_code=1,
+            )
 
         existing_user = find_user("email", user.email)
 
