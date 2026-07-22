@@ -1,12 +1,12 @@
 from datetime import date, time, datetime, timedelta
 from db_functions.application import (
-    is_job_admin,
-    update_status,
-    insert_interview_schedule,
-    get_email_data,
-    get_my_applications,
-    fetch_candidate,
+    add_interview_schedule_to_application,
+    get_application_email_context,
+    get_applications_by_job_id,
+    is_application_owned_by_hr,
+    update_application_status,
 )
+from db_functions.user import get_user_profile_by_id
 from utils.emails import (
     interview_email,
     rejection_email,
@@ -33,7 +33,7 @@ def update_job_status(job_id: str, stat: str, user_id):
             f"Updating application status. Job ID: {job_id}, Status: {stat}, User ID: {user_id}"
         )
 
-        if not is_job_admin(job_id, user_id):
+        if not is_application_owned_by_hr(job_id, user_id):
             logger.warning(
                 f"Unauthorized status update attempt. Job ID: {job_id}, User ID: {user_id}"
             )
@@ -46,7 +46,7 @@ def update_job_status(job_id: str, stat: str, user_id):
                 error_code=1,
             )
 
-        update_status(stat, job_id)
+        update_application_status(job_id, stat)
 
         logger.info(f"Status updated successfully. Job ID: {job_id}, Status: {stat}")
 
@@ -78,14 +78,14 @@ def schedule_interview_helper(
         # Schedule Interview
         # --------------------------------------------------
 
-        bool_schedule = insert_interview_schedule(
+        schedule_result = add_interview_schedule_to_application(
             job_id,
             interview_date,
             interview_time,
             stat,
         )
 
-        if not bool_schedule:
+        if not schedule_result:
             logger.warning(
                 f"Interview schedule could not be inserted. Job ID: {job_id}"
             )
@@ -119,7 +119,7 @@ def schedule_interview_helper(
         # Get Candidate Data
         # --------------------------------------------------
 
-        response = get_email_data(job_id)
+        response = get_application_email_context(job_id)
 
         if not response:
             logger.warning(f"No candidate email data found. Job ID: {job_id}")
@@ -234,7 +234,7 @@ def reject_application_helper(job_id: str, user):
         # Get Candidate Data
         # --------------------------------------------------
 
-        response = get_email_data(job_id)
+        response = get_application_email_context(job_id)
 
         if not response:
             logger.warning(f"No candidate data found for Job ID: {job_id}")
@@ -351,7 +351,7 @@ def set_initial_meeting_helper(
                 error_code=1,
             )
 
-        response = get_email_data(job_id)
+        response = get_application_email_context(job_id)
 
         if not response:
             logger.warning(f"No candidate data found for Job ID: {job_id}")
@@ -539,7 +539,7 @@ def send_hiring_email_helper(
         # Get Candidate Data
         # --------------------------------------------------
 
-        response = get_email_data(job_id)
+        response = get_application_email_context(job_id)
 
         if not response:
             logger.warning(f"No candidate data found for Job ID: {job_id}")
@@ -664,16 +664,16 @@ def view_app_applications_helper(job_id):
     try:
         logger.info(f"Fetching applications for Job ID: {job_id}")
 
-        result = get_my_applications("job_id", job_id)
-        for application in result:
-            candidate = fetch_candidate(application["candidate_id"])
+        applications = get_applications_by_job_id(job_id)
+        for application in applications:
+            candidate = get_user_profile_by_id(application["candidate_id"])
             application["candidate"] = candidate
 
-        logger.info(f"Retrieved {len(result)} applications for Job ID: {job_id}")
+        logger.info(f"Retrieved {len(applications)} applications for Job ID: {job_id}")
 
         return api_response(
             status_code=200,
-            data=result,
+            data=applications,
             message="Application Retrieved successfully",
             api_source="hr application handler",
         )

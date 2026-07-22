@@ -1,22 +1,22 @@
-from core.security.password_hashing import hashpass
+from core.security.password_hashing import hash_password
 from core.security.jwt import generate_access_key
-from models.user import userSignup, User
+from models.user import User, UserSignup
 from datetime import datetime, timezone
 from db_functions.user import (
-    find_user,
-    insert_in_user,
-    find_email_in_admin,
-    update_admin,
+    create_user,
+    find_allowed_hr_by_email,
+    find_user_by_field,
+    update_allowed_hr_by_email,
 )
 from utils.response import api_response
 from logging_config import logger
 
 
-def hr_signup_helper(user: userSignup):
+def hr_signup_helper(user: UserSignup):
     try:
-        admin_approved = find_email_in_admin(user.email)
+        allowed_hr = find_allowed_hr_by_email(user.email)
 
-        if not admin_approved:
+        if not allowed_hr:
             logger.warning(f"This email is not authorized for Hr Signup: {user.email}")
             return api_response(
                 status_code=403,
@@ -26,7 +26,7 @@ def hr_signup_helper(user: userSignup):
                 error_code=1,
             )
 
-        if admin_approved["registered"]:
+        if allowed_hr["registered"]:
             logger.info(f"Hr Email already exists: {user.email}")
             return api_response(
                 status_code=403,
@@ -36,7 +36,7 @@ def hr_signup_helper(user: userSignup):
                 error_code=1,
             )
 
-        existing_user = find_user("email", user.email)
+        existing_user = find_user_by_field("email", user.email)
 
         if existing_user:
             logger.warning(f"Signup failed. User already exists: {user.email}")
@@ -52,18 +52,20 @@ def hr_signup_helper(user: userSignup):
             email=user.email,
             username=user.username,
             fullname=user.fullname,
-            hash_pass=hashpass(user.password),
+            hash_pass=hash_password(user.password),
             date_joined=datetime.now(timezone.utc),
             role="hr",
         )
 
-        db_user = insert_in_user(new_user)
+        insert_result = create_user(new_user)
 
-        logger.info(f"HR created successfully with id: {db_user.inserted_id}")
+        logger.info(f"HR created successfully with id: {insert_result.inserted_id}")
 
-        update_admin(email=user.email, update_data={"registered": True})
+        update_allowed_hr_by_email(email=user.email, update_data={"registered": True})
 
-        token = generate_access_key({"id": str(db_user.inserted_id), "role": "hr"})
+        token = generate_access_key(
+            {"id": str(insert_result.inserted_id), "role": "hr"}
+        )
 
         logger.info(f"Access token generated for candidate: {user.email}")
         result = {
@@ -77,8 +79,8 @@ def hr_signup_helper(user: userSignup):
             message="HR user created successfully",
             api_source="hr signup",
         )
-    except:
-        logger.exception(f"Unexpected error during candidate signup for: {user.email}")
+    except Exception:
+        logger.exception(f"Unexpected error during HR signup for: {user.email}")
 
         return api_response(
             status_code=500,

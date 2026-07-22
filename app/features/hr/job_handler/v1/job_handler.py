@@ -1,12 +1,12 @@
 from models.job import Job
-from db_functions.user import find_user, find_email_in_admin
+from db_functions.user import find_allowed_hr_by_email, find_user_by_field
 from db_functions.jobs import (
-    insert_job,
-    find_in_job,
-    update_job_id,
-    delete_job_id,
+    create_job,
+    delete_job_by_id,
+    find_job_by_field,
+    find_jobs_by_query,
     get_all_jobs,
-    get_jobs_by_query,
+    update_job_by_id,
 )
 from datetime import datetime, timezone
 from utils.response import api_response
@@ -20,7 +20,7 @@ if yes then allows the user to enter job detail and create a new job
 """
 
 
-def add_job_helper(jobDate: Job, user):
+def add_job_helper(job_data: Job, user):
     try:
         current_user = user["id"]
 
@@ -30,7 +30,7 @@ def add_job_helper(jobDate: Job, user):
         # Validate User
         # --------------------------------------------------
 
-        existing_user = find_user(
+        existing_user = find_user_by_field(
             "_id",
             ObjectId(current_user),
         )
@@ -50,9 +50,9 @@ def add_job_helper(jobDate: Job, user):
         # Validate HR Approval
         # --------------------------------------------------
 
-        admin_approved = find_email_in_admin(existing_user["email"])
+        allowed_hr = find_allowed_hr_by_email(existing_user["email"])
 
-        if not admin_approved:
+        if not allowed_hr:
             logger.warning(
                 f"Unauthorized job creation attempt by {existing_user['email']}"
             )
@@ -69,7 +69,7 @@ def add_job_helper(jobDate: Job, user):
         # Validate Job Data
         # --------------------------------------------------
 
-        if not jobDate.title.strip():
+        if not job_data.title.strip():
             logger.warning(f"Empty job title provided by user {current_user}")
 
             return api_response(
@@ -80,7 +80,7 @@ def add_job_helper(jobDate: Job, user):
                 error_code=1,
             )
 
-        if jobDate.pay <= 0:
+        if job_data.pay <= 0:
             logger.warning(f"Invalid pay amount provided by user {current_user}")
 
             return api_response(
@@ -91,7 +91,7 @@ def add_job_helper(jobDate: Job, user):
                 error_code=1,
             )
 
-        if jobDate.last_date_to_apply <= datetime.now(timezone.utc):
+        if job_data.last_date_to_apply <= datetime.now(timezone.utc):
             logger.warning(
                 f"Invalid application deadline provided by user {current_user}"
             )
@@ -108,27 +108,27 @@ def add_job_helper(jobDate: Job, user):
         # Create Job Object
         # --------------------------------------------------
 
-        newJob = Job(
-            title=jobDate.title,
-            description=jobDate.description,
-            last_date_to_apply=jobDate.last_date_to_apply,
-            skills_required=jobDate.skills_required,
-            required_experience=jobDate.required_experience,
-            job_type=jobDate.job_type,
+        new_job = Job(
+            title=job_data.title,
+            description=job_data.description,
+            last_date_to_apply=job_data.last_date_to_apply,
+            skills_required=job_data.skills_required,
+            required_experience=job_data.required_experience,
+            job_type=job_data.job_type,
             created_at=datetime.now(timezone.utc),
             created_by=str(current_user),
             status="Open",
-            pay=jobDate.pay,
+            pay=job_data.pay,
         )
 
-        logger.info(f"Creating job '{jobDate.title}' for user {current_user}")
+        logger.info(f"Creating job '{job_data.title}' for user {current_user}")
 
         # --------------------------------------------------
         # Insert Job
         # --------------------------------------------------
 
-        result = insert_job(newJob)
-        
+        result = create_job(new_job)
+
         if result is None:
             logger.error(f"Job insertion failed for user {current_user}")
 
@@ -144,7 +144,7 @@ def add_job_helper(jobDate: Job, user):
 
         return api_response(
             status_code=200,
-            data=newJob,
+            data=new_job,
             message="Job created Successfully",
             api_source="job handler in hr",
             error_code=0,
@@ -185,12 +185,12 @@ def update_job_helper(
         # Check Job Exists
         # --------------------------------------------------
 
-        curr_job = find_in_job(
+        current_job = find_job_by_field(
             "_id",
             ObjectId(job_id),
         )
 
-        if not curr_job:
+        if not current_job:
             logger.warning(f"Job not found. Job ID: {job_id}")
 
             return api_response(
@@ -205,7 +205,7 @@ def update_job_helper(
         # Verify Ownership
         # --------------------------------------------------
 
-        if curr_job["created_by"] != user["id"]:
+        if current_job["created_by"] != user["id"]:
             logger.warning(
                 f"Unauthorized job update attempt. Job ID: {job_id}, User ID: {user['id']}"
             )
@@ -275,7 +275,7 @@ def update_job_helper(
         # Update Job
         # --------------------------------------------------
 
-        result = update_job_id(
+        result = update_job_by_id(
             job_id,
             update_data,
         )
@@ -321,21 +321,21 @@ only creator can delete his job
 """
 
 
-def delete_job_helper(jobId: str, user):
+def delete_job_helper(job_id: str, user):
     try:
-        logger.info(f"Job deletion requested. Job ID: {jobId}, User ID: {user['id']}")
+        logger.info(f"Job deletion requested. Job ID: {job_id}, User ID: {user['id']}")
 
         # --------------------------------------------------
         # Check Job Exists
         # --------------------------------------------------
 
-        curr_job = find_in_job(
+        current_job = find_job_by_field(
             "_id",
-            ObjectId(jobId),
+            ObjectId(job_id),
         )
 
-        if not curr_job:
-            logger.warning(f"Job not found. Job ID: {jobId}")
+        if not current_job:
+            logger.warning(f"Job not found. Job ID: {job_id}")
 
             return api_response(
                 status_code=404,
@@ -349,9 +349,9 @@ def delete_job_helper(jobId: str, user):
         # Verify Ownership
         # --------------------------------------------------
 
-        if curr_job["created_by"] != user["id"]:
+        if current_job["created_by"] != user["id"]:
             logger.warning(
-                f"Unauthorized delete attempt. Job ID: {jobId}, User ID: {user['id']}"
+                f"Unauthorized delete attempt. Job ID: {job_id}, User ID: {user['id']}"
             )
 
             return api_response(
@@ -366,10 +366,10 @@ def delete_job_helper(jobId: str, user):
         # Delete Job
         # --------------------------------------------------
 
-        result = delete_job_id(jobId)
+        result = delete_job_by_id(job_id)
 
         if not result:
-            logger.error(f"Failed to delete Job ID: {jobId}")
+            logger.error(f"Failed to delete Job ID: {job_id}")
 
             return api_response(
                 status_code=500,
@@ -379,18 +379,18 @@ def delete_job_helper(jobId: str, user):
                 error_code=1,
             )
 
-        logger.info(f"Job deleted successfully. Job ID: {jobId}")
+        logger.info(f"Job deleted successfully. Job ID: {job_id}")
 
         return api_response(
             status_code=200,
-            data=jobId,
+            data=job_id,
             message="Job Deleted",
             api_source="job handler in hr",
             error_code=0,
         )
 
     except Exception:
-        logger.exception(f"Unexpected error while deleting Job ID: {jobId}")
+        logger.exception(f"Unexpected error while deleting Job ID: {job_id}")
 
         return api_response(
             status_code=500,
@@ -442,24 +442,6 @@ def get_job_details_helper():
             error_code=1,
         )
 
-
-# -------------------------------------------------------------
-# get a specific job by id
-"""
-no use case for now,will complete it if needed
-"""
-
-# def get_job_helper(jobId: str):
-
-#     curr_job = find_in_job("_id",ObjectId(jobId))
-
-#     if not curr_job:
-#         return api_response(status_code=400,data=None,message="No fields provided to update",api_source="job handler in hr",error_code=1)
-
-#     curr_job["_id"] = str(curr_job["_id"])
-
-#     return api_response("/routes/job_handler/get_job",curr_job,"Job fetched successfully")
-# --------------------------------------------------------------
 
 # for getting jobs based on some specific filter
 
@@ -544,7 +526,7 @@ def get_filtered_jobs_helper(
         # Fetch Jobs
         # --------------------------------------------------
 
-        jobs = get_jobs_by_query(query)
+        jobs = find_jobs_by_query(query)
 
         if not jobs:
             logger.info("No jobs found matching filters")
@@ -590,7 +572,7 @@ def get_all_created_job_helper(user):
 
         query = {"created_by": user["id"]}
 
-        jobs = get_jobs_by_query(query)
+        jobs = find_jobs_by_query(query)
 
         if not jobs:
             logger.info(f"No jobs found for HR User ID: {user['id']}")

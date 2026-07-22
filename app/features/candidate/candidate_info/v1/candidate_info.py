@@ -1,6 +1,10 @@
 from fastapi import UploadFile, File, Form
 from services.storage import upload_resume, delete_file
-from db_functions.user import update_user, find_user, get_profile_data
+from db_functions.user import (
+    find_user_by_field,
+    get_user_profile_by_id,
+    update_user_by_id,
+)
 from bson import ObjectId
 from utils.response import api_response
 from logging_config import logger
@@ -33,7 +37,7 @@ def submit_candidate_data_helper(
 
         skills_list = [skill.strip() for skill in skills.split(",")]
 
-        result = update_user(
+        result = update_user_by_id(
             current_user,
             {
                 "experience": experience,
@@ -93,7 +97,7 @@ def update_candidate_data_helper(
 
         logger.info(f"Candidate {candidate_id} requested profile update")
 
-        candidate = find_user("_id", ObjectId(candidate_id))
+        candidate = find_user_by_field("_id", ObjectId(candidate_id))
 
         if not candidate:
             logger.warning(f"Candidate not found during update: {candidate_id}")
@@ -139,7 +143,7 @@ def update_candidate_data_helper(
                 logger.exception(f"Resume update failed for candidate {candidate_id}")
                 raise
 
-        update_user(candidate_id, update_data)
+        update_user_by_id(candidate_id, update_data)
 
         logger.info(f"Profile updated successfully for candidate {candidate_id}")
 
@@ -175,7 +179,7 @@ def get_user_data_helper(user_id):
     try:
         logger.info(f"Fetching profile data for candidate {user_id['id']}")
 
-        result = get_profile_data(user_id["id"])
+        result = get_user_profile_by_id(user_id["id"])
 
         logger.info(f"Profile data fetched successfully for candidate {user_id['id']}")
 

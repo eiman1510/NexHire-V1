@@ -1,45 +1,26 @@
-from core.database import jobs_applied_collection, jobs, users_collection
 from bson import ObjectId
+
+from core.database import job_applications_collection, jobs_collection
 from models.job import JobApply
-from .user import find_user
-from .jobs import find_in_job
+from .jobs import find_job_by_field
+from .user import find_user_by_field
 
 
-def insert_applied_job(job: JobApply):
-    return jobs_applied_collection.insert_one(job.model_dump())
+def create_job_application(application: JobApply):
+    return job_applications_collection.insert_one(application.model_dump())
 
 
-# ---------------------------------------------------------
-
-
-def compare(job_id: str, user_id: str):
-    application = jobs_applied_collection.find_one(
-        {"job_id": job_id, "candidate_id": user_id}
+def candidate_has_applied(job_id: str, candidate_id: str) -> bool:
+    application = job_applications_collection.find_one(
+        {"job_id": job_id, "candidate_id": candidate_id}
     )
-
-    if application:
-        return False
-
-    return True
+    return application is not None
 
 
-# ---------------------------------------------------------
-
-
-def get_job_data(job_id):
-    job = jobs.find_one({"_id": ObjectId(job_id)})
-
-    if job:
-        job["_id"] = str(job["_id"])
-        return job
-
-
-# ---------------------------------------------------------
-
-
-def fetch_my_jobs(user_id: str):
-
-    applications = list(jobs_applied_collection.find({"candidate_id": user_id}))
+def get_applications_by_candidate_id(candidate_id: str):
+    applications = list(
+        job_applications_collection.find({"candidate_id": candidate_id})
+    )
 
     for application in applications:
         application["_id"] = str(application["_id"])
@@ -47,43 +28,36 @@ def fetch_my_jobs(user_id: str):
     return applications
 
 
-# ---------------------------------------------------------
-
-
-def is_job_admin(application_id: str, user_id: str):
-
-    application = jobs_applied_collection.find_one({"_id": ObjectId(application_id)})
-
+def is_application_owned_by_hr(application_id: str, hr_user_id: str) -> bool:
+    application = job_applications_collection.find_one(
+        {"_id": ObjectId(application_id)}
+    )
     if application is None:
         return False
 
-    job = jobs.find_one({"_id": ObjectId(application["job_id"]), "created_by": user_id})
-
-    if job:
-        return True
-    return False
-
-
-# ---------------------------------------------------------
-
-
-def update_status(stat: str, job_id: str):
-    result = jobs_applied_collection.update_one(
+    job = jobs_collection.find_one(
         {
-            "_id": ObjectId(job_id),
-        },
-        {"$set": {"status": stat}},
+            "_id": ObjectId(application["job_id"]),
+            "created_by": hr_user_id,
+        }
     )
-    return result
+    return job is not None
 
 
-# ---------------------------------------------------------
+def update_application_status(application_id: str, status: str):
+    return job_applications_collection.update_one(
+        {"_id": ObjectId(application_id)},
+        {"$set": {"status": status}},
+    )
 
 
-def insert_interview_schedule(
-    application_id: str, interview_date, interview_time, stat: str
+def add_interview_schedule_to_application(
+    application_id: str,
+    interview_date,
+    interview_time,
+    interview_status: str,
 ):
-    return jobs_applied_collection.update_one(
+    return job_applications_collection.update_one(
         {"_id": ObjectId(application_id)},
         {
             "$set": {
@@ -91,51 +65,35 @@ def insert_interview_schedule(
                 "interview": {
                     "date": str(interview_date),
                     "time": str(interview_time),
-                    "status": stat,
+                    "status": interview_status,
                 },
             }
         },
     )
 
 
-# ---------------------------------------------------------
-
-
-def get_email_data(application_id: str):
-    application = jobs_applied_collection.find_one({"_id": ObjectId(application_id)})
-
+def get_application_email_context(application_id: str):
+    application = job_applications_collection.find_one(
+        {"_id": ObjectId(application_id)}
+    )
     if not application:
         return None
-    user = find_user("_id", ObjectId(application["candidate_id"]))
-    job = find_in_job("_id", ObjectId(application["job_id"]))
+
+    candidate = find_user_by_field("_id", ObjectId(application["candidate_id"]))
+    job = find_job_by_field("_id", ObjectId(application["job_id"]))
 
     return {
-        "username": user["fullname"],
+        "username": candidate["fullname"],
         "job_title": job["title"],
-        "receiver_mail": user["email"],
+        "receiver_mail": candidate["email"],
         "job_id": application["job_id"],
     }
 
 
-# ---------------------------------------------------------
-
-
-def get_my_applications(feild, job_id):
-    applications = list(jobs_applied_collection.find({feild: job_id}))
+def get_applications_by_job_id(job_id: str):
+    applications = list(job_applications_collection.find({"job_id": job_id}))
 
     for application in applications:
         application["_id"] = str(application["_id"])
 
     return applications
-
-
-# ---------------------------------------------------------
-
-
-def fetch_candidate(candidate_id):
-    candidate = users_collection.find_one({"_id": ObjectId(candidate_id)})
-
-    if candidate:
-        candidate["_id"] = str(candidate["_id"])
-        candidate.pop("password", None)
-    return candidate

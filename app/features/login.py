@@ -1,7 +1,7 @@
 from fastapi import APIRouter
-from db_functions.user import find_user
+from db_functions.user import find_user_by_field
 from models.user import UserLogin
-from core.security.password_hashing import verifypass
+from core.security.password_hashing import verify_password
 from core.security.jwt import generate_access_key
 from utils.response import api_response
 from logging_config import logger
@@ -14,9 +14,9 @@ def login(user: UserLogin):
     try:
         logger.info(f"Login attempt for email: {user.email}")
 
-        db_user = find_user("email", user.email)
+        stored_user = find_user_by_field("email", user.email)
 
-        if not db_user:
+        if not stored_user:
             logger.warning(f"User not found: {user.email}")
 
             return api_response(
@@ -29,7 +29,7 @@ def login(user: UserLogin):
 
         logger.info(f"User found: {user.email}")
 
-        if not verifypass(user.password, db_user["hash_pass"]):
+        if not verify_password(user.password, stored_user["hash_pass"]):
             logger.warning(f"Invalid password for user: {user.email}")
 
             return api_response(
@@ -43,7 +43,7 @@ def login(user: UserLogin):
         logger.info(f"Password verified for user: {user.email}")
 
         token = generate_access_key(
-            {"id": str(db_user["_id"]), "role": db_user["role"]}
+            {"id": str(stored_user["_id"]), "role": stored_user["role"]}
         )
 
         logger.info(f"Access token generated for user: {user.email}")
@@ -51,7 +51,7 @@ def login(user: UserLogin):
         result = {
             "access_key": token,
             "token_type": "bearer",
-            "role": db_user["role"],
+            "role": stored_user["role"],
         }
 
         logger.info(f"Login successful for user: {user.email}")
@@ -63,7 +63,7 @@ def login(user: UserLogin):
             api_source="Login",
         )
 
-    except Exception as e:
+    except Exception:
         logger.exception(f"Unexpected error during login for user: {user.email}")
 
         return api_response(

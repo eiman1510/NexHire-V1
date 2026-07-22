@@ -5,21 +5,13 @@ router = APIRouter()
 
 
 @router.get("/alljobs")
-def get_job_details():
+def get_candidate_jobs():
     return get_job_details_helper()
-
-
-# -------------------------------------------------------------
-# get a specific job by id
-# @router.get("/getJob/{jobId}")
-# def get_job(jobId: str):
-#     pass
-# --------------------------------------------------------------
 
 
 # for getting jobs based on some specific filter
 @router.get("/getFilteredJob")
-def get_filtered_jobs(
+def get_filtered_candidate_jobs(
     min_sal: int | None = None,
     experience: int | None = None,
     job_type: str | None = None,

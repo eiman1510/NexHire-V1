@@ -1,52 +1,46 @@
-from core.database import jobs
 from bson import ObjectId
 
-
-def insert_job(jobDate):
-    result=jobs.insert_one(jobDate.model_dump())
-    return result
+from core.database import jobs_collection
 
 
-# ---------------------------------------------------------------------------------------
+def create_job(job):
+    return jobs_collection.insert_one(job.model_dump())
 
 
-def find_in_job(field, value):
-    return jobs.find_one({field: value})
+def find_job_by_field(field: str, value):
+    return jobs_collection.find_one({field: value})
 
 
-# ---------------------------------------------------------------------------------------
+def get_job_by_id(job_id: str):
+    job = jobs_collection.find_one({"_id": ObjectId(job_id)})
 
-
-def update_job_id(id, update_data):
-    return jobs.update_one({"_id": ObjectId(id)}, {"$set": update_data})
-
-
-# ---------------------------------------------------------------------------------------
-
-
-def delete_job_id(jobid):
-    return jobs.delete_one({"_id": ObjectId(jobid)})
-
-
-# ---------------------------------------------------------------------------------------
-
-
-def get_jobs_by_query(query: dict):
-    jobs_list = list(jobs.find(query))
-
-    for job in jobs_list:
+    if job:
         job["_id"] = str(job["_id"])
 
-    return jobs_list
+    return job
 
 
-# ---------------------------------------------------------------------------------------
+def update_job_by_id(job_id: str, update_data: dict):
+    return jobs_collection.update_one({"_id": ObjectId(job_id)}, {"$set": update_data})
+
+
+def delete_job_by_id(job_id: str):
+    return jobs_collection.delete_one({"_id": ObjectId(job_id)})
+
+
+def find_jobs_by_query(query: dict):
+    jobs = list(jobs_collection.find(query))
+
+    for job in jobs:
+        job["_id"] = str(job["_id"])
+
+    return jobs
 
 
 def get_all_jobs():
-    jobs_list = list(jobs.find())
+    jobs = list(jobs_collection.find())
 
-    for job in jobs_list:
+    for job in jobs:
         job["_id"] = str(job["_id"])
 
-    return jobs_list
+    return jobs

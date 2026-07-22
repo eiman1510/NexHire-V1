@@ -1,10 +1,10 @@
 from fastapi import APIRouter
-from models.user import userSignup
-from .v1.signup import candidatesignup_helper
+from models.user import UserSignup
+from .v1.signup import candidate_signup_helper
 
 router = APIRouter(prefix="/auth")
 
 
 @router.post("/signup/candidate", status_code=201)
-def candidatesignup(user: userSignup):
-    return candidatesignup_helper(user)
+def candidate_signup(user: UserSignup):
+    return candidate_signup_helper(user)

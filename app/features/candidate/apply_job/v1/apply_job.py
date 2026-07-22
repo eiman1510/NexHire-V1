@@ -1,11 +1,11 @@
 from models.job import JobApply
 from datetime import datetime, timezone
 from db_functions.application import (
-    compare,
-    insert_applied_job,
-    fetch_my_jobs,
-    get_job_data,
+    candidate_has_applied,
+    create_job_application,
+    get_applications_by_candidate_id,
 )
+from db_functions.jobs import get_job_by_id
 from utils.response import api_response
 from logging_config import logger
 
@@ -23,7 +23,7 @@ def job_apply_helper(job_id: str, user):
 
         logger.info(f"Candidate {candidate_id} attempting to apply for job {job_id}")
 
-        if not compare(job_id, candidate_id):
+        if candidate_has_applied(job_id, candidate_id):
             logger.warning(
                 f"Duplicate application attempt. Candidate={candidate_id}, Job={job_id}"
             )
@@ -43,7 +43,7 @@ def job_apply_helper(job_id: str, user):
             applied_at=datetime.now(timezone.utc),
         )
 
-        insert_applied_job(new_job)
+        create_job_application(new_job)
 
         logger.info(
             f"Application submitted successfully. Candidate={candidate_id}, Job={job_id}"
@@ -83,16 +83,16 @@ def get_applied_job_helper(user):
 
         logger.info(f"Fetching applied jobs for candidate {candidate_id}")
 
-        result = fetch_my_jobs(candidate_id)
-        for application in result:
-            job = get_job_data(application["job_id"])
+        applications = get_applications_by_candidate_id(candidate_id)
+        for application in applications:
+            job = get_job_by_id(application["job_id"])
             application["job"] = job
 
         logger.info(f"Applied jobs fetched successfully for candidate {candidate_id}")
 
         return api_response(
             status_code=200,
-            data=result,
+            data=applications,
             message="Data Fetched Successfully",
             api_source="candidate get applied jobs",
         )

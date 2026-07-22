@@ -1,4 +1,4 @@
-from db_functions.jobs import get_all_jobs, get_jobs_by_query
+from db_functions.jobs import find_jobs_by_query, get_all_jobs
 from utils.response import api_response
 from logging_config import logger
 
@@ -33,35 +33,6 @@ def get_job_details_helper():
         )
 
 
-# -------------------------------------------------------------
-# get a specific job by id
-"""
-no use case for now, will complete it if needed
-"""
-
-# def get_job_helper(jobId: str):
-#
-#     curr_job = find_in_job("_id",ObjectId(jobId))
-#
-#     if not curr_job:
-#         return api_response(
-#             status_code=400,
-#             data=None,
-#             message="No fields provided to update",
-#             api_source="job handler in hr",
-#             error_code=1
-#         )
-#
-#     curr_job["_id"] = str(curr_job["_id"])
-#
-#     return api_response(
-#         "/routes/job_handler/get_job",
-#         curr_job,
-#         "Job fetched successfully"
-#     )
-
-
-# --------------------------------------------------------------
 # for getting jobs based on some specific filter
 
 
@@ -89,7 +60,7 @@ def get_filtered_jobs_helper(
         if job_type is not None:
             query["job_type"] = job_type
 
-        jobs = get_jobs_by_query(query)
+        jobs = find_jobs_by_query(query)
 
         logger.info(f"Successfully fetched {len(jobs)} jobs matching filters")
 

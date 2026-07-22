@@ -1,4 +1,4 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Query
 from models.job import Job
 from fastapi import Depends
 from dependencies.get_api_content import get_request_context
@@ -17,11 +17,11 @@ router = APIRouter()
 
 @router.post("/add_job")
 def add_job(
-    jobDate: Job,
+    job_data: Job,
     context=Depends(get_request_context()),
 ):
     print(context)
-    return add_job_helper(jobDate, context["user"])
+    return add_job_helper(job_data, context["user"])
 
 
 # ---------------------------------------------------------------------------------------
@@ -35,37 +35,32 @@ def update_job(
     context=Depends(get_request_context()),
 ):
     print(context)
-    return update_job_helper(job_id, status, last_date_to_apply,context["user"])
+    return update_job_helper(job_id, status, last_date_to_apply, context["user"])
 
 
 # -------------------------------------------------------------------
 
 
 @router.delete("/delete_job")
-def delete_job(jobId: str, context=Depends(get_request_context())):
+def delete_job(
+    job_id: str = Query(alias="jobId"),
+    context=Depends(get_request_context()),
+):
     print(context)
-    return delete_job_helper(jobId, context["user"])
+    return delete_job_helper(job_id, context["user"])
 
 
 # ---------------------------------------------------------------------
 
 
 @router.get("/alljobs")
-def get_job_details():
+def get_hr_jobs():
     return get_job_details_helper()
-
-
-# -------------------------------------------------------------
-# get a specific job by id
-# @router.get("/getJob/{jobId}")
-# def get_job(jobId: str):
-#     pass
-# --------------------------------------------------------------
 
 
 # for getting jobs based on some specific filter
 @router.get("/getFilteredJob")
-def get_filtered_jobs(
+def get_filtered_hr_jobs(
     min_sal: int | None = None,
     experience: int | None = None,
     job_type: str | None = None,
@@ -77,6 +72,6 @@ def get_filtered_jobs(
 # HR
 # return all jobs created by an hr
 @router.get("/my_created_jobs")
-def get_all_created_job(context=Depends(get_request_context())):
+def get_hr_created_jobs(context=Depends(get_request_context())):
     print(context)
     return get_all_created_job_helper(context["user"])
