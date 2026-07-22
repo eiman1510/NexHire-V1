@@ -28,15 +28,4 @@ SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
 MONGO_URL = os.getenv("MONGO_URL")
 
-FEATURES = {
-    "candidate:apply_job": "v1",
-    "candidate:candidate_info": "v1",
-    "candidate:job_handler": "v1",
-    "candidate:signup": "v1",
-    "hr:application_handler": "v1",
-    "hr:job_handler": "v1",
-    "hr:signup": "v1",
-    "login": "v1",
-    }
-
 RESUME_API_KEY = os.getenv("RESUME_API_KEY")

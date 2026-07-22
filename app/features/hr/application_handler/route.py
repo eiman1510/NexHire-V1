@@ -1,7 +1,13 @@
 from fastapi import APIRouter, Depends
 from dependencies.get_api_content import get_request_context
-from dependencies.get_version import load_function
 from datetime import date, time
+from .v1.application_handler import (
+    reject_application_helper,
+    schedule_interview_helper,
+    send_hiring_email_helper,
+    set_initial_meeting_helper,
+    view_app_applications_helper,
+)
 
 router = APIRouter()
 
@@ -22,11 +28,6 @@ def schedule_interview(
     context=Depends(get_request_context()),
 ):
     print(context)
-    schedule_interview_helper = load_function(
-        feature_key="hr:application_handler",
-        module_name="application_handler",
-        function_name="schedule_interview_helper",
-    )
     return schedule_interview_helper(job_id, interview_date, interview_time, stat, context["user"])
 
 
@@ -40,11 +41,6 @@ This rejects appliaction and send a rejection email
 @router.post("/reject_application")
 def reject_application(job_id: str, context=Depends(get_request_context())):
     print(context)
-    reject_application_helper = load_function(
-        feature_key="hr:application_handler",
-        module_name="application_handler",
-        function_name="reject_application_helper",
-    )
     return reject_application_helper(job_id, context["user"])
 
 
@@ -64,11 +60,6 @@ def set_initial_meeting(
     context=Depends(get_request_context()),
 ):
     print(context)
-    set_initial_meeting_helper = load_function(
-        feature_key="hr:application_handler",
-        module_name="application_handler",
-        function_name="set_initial_meeting_helper",
-    )
     return set_initial_meeting_helper(
         job_id, interview_link, interview_date, interview_time, context["user"]
     )
@@ -92,19 +83,9 @@ def send_hiring_email(
     context=Depends(get_request_context()),
 ):
     print(context)
-    send_hiring_email_helper = load_function(
-        feature_key="hr:application_handler",
-        module_name="application_handler",
-        function_name="send_hiring_email_helper",
-    )
     return send_hiring_email_helper(job_id, start, time, timings, working_days, pay, context["user"])
 
 
 @router.get("/application/{job_id}")
 def view_app_application(job_id):
-    view_app_applications_helper = load_function(
-        feature_key="hr:application_handler",
-        module_name="application_handler",
-        function_name="view_app_applications_helper",
-    )
     return view_app_applications_helper(job_id)
