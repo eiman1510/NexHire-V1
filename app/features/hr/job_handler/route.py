@@ -4,6 +4,7 @@ from fastapi import Depends
 from dependencies.get_api_content import get_request_context
 from datetime import datetime
 from .v1.job_handler import (
+    activate_job_helper,
     add_job_helper,
     delete_job_helper,
     get_all_created_job_helper,
@@ -36,6 +37,15 @@ def update_job(
 ):
     print(context)
     return update_job_helper(job_id, status, last_date_to_apply, context["user"])
+
+
+@router.put("/activate_job/{job_id}")
+def activate_job(
+    job_id: str,
+    last_date_to_apply: datetime | None = None,
+    context=Depends(get_request_context()),
+):
+    return activate_job_helper(job_id, context["user"], last_date_to_apply)
 
 
 # -------------------------------------------------------------------

@@ -20,4 +20,5 @@ class JobApply(BaseModel):
     job_id: str
     # ats_percentage: float
     status: str
+    is_active: bool = True
     applied_at: datetime

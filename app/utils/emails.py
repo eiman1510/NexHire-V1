@@ -51,6 +51,25 @@ HR Team
     send_email(to_email=email, subject=subject, body=body)
 
 
+def job_inactive_email(username: str, email: str, job_title: str):
+    subject = f"Job Status Update - {job_title}"
+
+    body = f"""
+Dear {username},
+
+The {job_title} position is currently inactive.
+
+Your application has not been deleted. It will become active again automatically if the position is reopened.
+
+Thank you for your patience and interest in this opportunity.
+
+Best regards,
+HR Team
+"""
+
+    send_email(to_email=email, subject=subject, body=body)
+
+
 # -------------------------------------------------------------------------
 
 

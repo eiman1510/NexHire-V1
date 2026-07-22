@@ -17,6 +17,17 @@ def candidate_has_applied(job_id: str, candidate_id: str) -> bool:
     return application is not None
 
 
+def job_has_applications(job_id: str) -> bool:
+    return job_applications_collection.count_documents({"job_id": job_id}, limit=1) > 0
+
+
+def set_job_applications_active(job_id: str, is_active: bool):
+    return job_applications_collection.update_many(
+        {"job_id": job_id},
+        {"$set": {"is_active": is_active}},
+    )
+
+
 def get_applications_by_candidate_id(candidate_id: str):
     applications = list(
         job_applications_collection.find({"candidate_id": candidate_id})
