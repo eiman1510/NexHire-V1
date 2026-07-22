@@ -57,7 +57,7 @@ def hr_signup_helper(user: UserSignup):
             role="hr",
         )
 
-        insert_result = create_user(new_user)
+        insert_result = create_user(new_user.model_dump())
 
         logger.info(f"HR created successfully with id: {insert_result.inserted_id}")
 

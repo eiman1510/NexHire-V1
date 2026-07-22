@@ -1,12 +1,13 @@
 from fastapi import UploadFile, File, Form
 from services.storage import upload_resume, delete_file
 from db_functions.user import (
+    find_user_by_id,
     find_user_by_field,
-    get_user_profile_by_id,
     update_user_by_id,
 )
 from bson import ObjectId
 from utils.response import api_response
+from utils.serialization import serialize_mongo_document
 from logging_config import logger
 
 # ----------------------------------------------------------------------------------------
@@ -179,7 +180,11 @@ def get_user_data_helper(user_id):
     try:
         logger.info(f"Fetching profile data for candidate {user_id['id']}")
 
-        result = get_user_profile_by_id(user_id["id"])
+        user = find_user_by_id(user_id["id"])
+        result = serialize_mongo_document(
+            user,
+            excluded_fields={"hash_pass", "password"},
+        )
 
         logger.info(f"Profile data fetched successfully for candidate {user_id['id']}")
 

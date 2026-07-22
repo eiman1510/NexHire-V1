@@ -1,12 +1,14 @@
 from datetime import date, time, datetime, timedelta
+from bson import ObjectId
+
 from db_functions.application import (
     add_interview_schedule_to_application,
-    get_application_email_context,
-    get_applications_by_job_id,
-    is_application_owned_by_hr,
+    get_application_by_id,
+    find_applications_by_job_id,
     update_application_status,
 )
-from db_functions.user import get_user_profile_by_id
+from db_functions.jobs import find_job_by_field
+from db_functions.user import find_user_by_field, find_user_by_id
 from utils.emails import (
     interview_email,
     rejection_email,
@@ -16,6 +18,28 @@ from utils.emails import (
 from utils.response import api_response
 from services.send_invite import create_calendar_event
 from logging_config import logger
+from utils.serialization import serialize_mongo_document
+
+
+def get_application_email_context(application_id: str):
+    application = get_application_by_id(application_id)
+    if not application:
+        return None
+
+    candidate = find_user_by_field(
+        "_id", ObjectId(application["candidate_id"])
+    )
+    job = find_job_by_field("_id", ObjectId(application["job_id"]))
+
+    if not candidate or not job:
+        return None
+
+    return {
+        "username": candidate["fullname"],
+        "job_title": job["title"],
+        "receiver_mail": candidate["email"],
+        "job_id": application["job_id"],
+    }
 
 # ---------------------------------------------------------
 # HR Helper function FUNCTION
@@ -33,7 +57,12 @@ def update_job_status(job_id: str, stat: str, user_id):
             f"Updating application status. Job ID: {job_id}, Status: {stat}, User ID: {user_id}"
         )
 
-        if not is_application_owned_by_hr(job_id, user_id):
+        application = get_application_by_id(job_id)
+        job = None
+        if application:
+            job = find_job_by_field("_id", ObjectId(application["job_id"]))
+
+        if not job or job["created_by"] != user_id:
             logger.warning(
                 f"Unauthorized status update attempt. Job ID: {job_id}, User ID: {user_id}"
             )
@@ -80,8 +109,8 @@ def schedule_interview_helper(
 
         schedule_result = add_interview_schedule_to_application(
             job_id,
-            interview_date,
-            interview_time,
+            str(interview_date),
+            str(interview_time),
             stat,
         )
 
@@ -664,10 +693,14 @@ def view_app_applications_helper(job_id):
     try:
         logger.info(f"Fetching applications for Job ID: {job_id}")
 
-        applications = get_applications_by_job_id(job_id)
+        applications = find_applications_by_job_id(job_id)
         for application in applications:
-            candidate = get_user_profile_by_id(application["candidate_id"])
-            application["candidate"] = candidate
+            candidate = find_user_by_id(application["candidate_id"])
+            application["candidate"] = serialize_mongo_document(
+                candidate,
+                excluded_fields={"hash_pass", "password"},
+            )
+            application["_id"] = str(application["_id"])
 
         logger.info(f"Retrieved {len(applications)} applications for Job ID: {job_id}")
 

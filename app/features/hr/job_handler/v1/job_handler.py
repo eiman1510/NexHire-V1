@@ -9,16 +9,17 @@ from db_functions.jobs import (
     update_job_by_id,
 )
 from db_functions.application import (
-    get_applications_by_job_id,
-    job_has_applications,
+    count_job_applications,
+    find_applications_by_job_id,
     set_job_applications_active,
 )
-from db_functions.user import get_user_profile_by_id
+from db_functions.user import find_user_by_id
 from datetime import datetime, timezone
 from utils.response import api_response
 from bson import ObjectId
 from logging_config import logger
 from utils.emails import job_inactive_email
+from utils.serialization import serialize_mongo_documents
 
 # Hr Route
 """
@@ -134,7 +135,7 @@ def add_job_helper(job_data: Job, user):
         # Insert Job
         # --------------------------------------------------
 
-        result = create_job(new_job)
+        result = create_job(new_job.model_dump())
 
         if result is None:
             logger.error(f"Job insertion failed for user {current_user}")
@@ -467,16 +468,16 @@ def delete_job_helper(job_id: str, user):
                 error_code=1,
             )
 
-        if job_has_applications(job_id):
+        if count_job_applications(job_id) > 0:
             update_job_by_id(job_id, {"status": "Closed"})
             application_update = set_job_applications_active(job_id, False)
 
             emails_sent = 0
             emails_failed = 0
-            applications = get_applications_by_job_id(job_id)
+            applications = find_applications_by_job_id(job_id)
 
             for application in applications:
-                candidate = get_user_profile_by_id(application["candidate_id"])
+                candidate = find_user_by_id(application["candidate_id"])
                 if not candidate or not candidate.get("email"):
                     emails_failed += 1
                     continue
@@ -559,6 +560,7 @@ def get_job_details_helper():
         logger.info("Fetching all available jobs")
 
         jobs = get_all_jobs()
+        jobs = serialize_mongo_documents(jobs)
 
         if not jobs:
             logger.info("No jobs found")
@@ -677,6 +679,7 @@ def get_filtered_jobs_helper(
         # --------------------------------------------------
 
         jobs = find_jobs_by_query(query)
+        jobs = serialize_mongo_documents(jobs)
 
         if not jobs:
             logger.info("No jobs found matching filters")
@@ -723,6 +726,7 @@ def get_all_created_job_helper(user):
         query = {"created_by": user["id"]}
 
         jobs = find_jobs_by_query(query)
+        jobs = serialize_mongo_documents(jobs)
 
         if not jobs:
             logger.info(f"No jobs found for HR User ID: {user['id']}")

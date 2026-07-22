@@ -1,5 +1,6 @@
 from db_functions.jobs import find_jobs_by_query, get_all_jobs
 from utils.response import api_response
+from utils.serialization import serialize_mongo_documents
 from logging_config import logger
 
 
@@ -10,6 +11,7 @@ def get_job_details_helper():
         logger.info("Fetching all jobs")
 
         jobs = get_all_jobs()
+        jobs = serialize_mongo_documents(jobs)
 
         logger.info(f"Successfully fetched {len(jobs)} jobs")
 
@@ -61,6 +63,7 @@ def get_filtered_jobs_helper(
             query["job_type"] = job_type
 
         jobs = find_jobs_by_query(query)
+        jobs = serialize_mongo_documents(jobs)
 
         logger.info(f"Successfully fetched {len(jobs)} jobs matching filters")
 

@@ -1,12 +1,13 @@
 from models.job import JobApply
 from datetime import datetime, timezone
 from db_functions.application import (
-    candidate_has_applied,
     create_job_application,
-    get_applications_by_candidate_id,
+    find_application_by_job_and_candidate,
+    find_applications_by_candidate_id,
 )
 from db_functions.jobs import get_job_by_id
 from utils.response import api_response
+from utils.serialization import serialize_mongo_document
 from logging_config import logger
 
 # ---------------------------------------------------------
@@ -23,7 +24,7 @@ def job_apply_helper(job_id: str, user):
 
         logger.info(f"Candidate {candidate_id} attempting to apply for job {job_id}")
 
-        if candidate_has_applied(job_id, candidate_id):
+        if find_application_by_job_and_candidate(job_id, candidate_id):
             logger.warning(
                 f"Duplicate application attempt. Candidate={candidate_id}, Job={job_id}"
             )
@@ -43,7 +44,7 @@ def job_apply_helper(job_id: str, user):
             applied_at=datetime.now(timezone.utc),
         )
 
-        create_job_application(new_job)
+        create_job_application(new_job.model_dump())
 
         logger.info(
             f"Application submitted successfully. Candidate={candidate_id}, Job={job_id}"
@@ -83,10 +84,11 @@ def get_applied_job_helper(user):
 
         logger.info(f"Fetching applied jobs for candidate {candidate_id}")
 
-        applications = get_applications_by_candidate_id(candidate_id)
+        applications = find_applications_by_candidate_id(candidate_id)
         for application in applications:
             job = get_job_by_id(application["job_id"])
-            application["job"] = job
+            application["job"] = serialize_mongo_document(job)
+            application["_id"] = str(application["_id"])
 
         logger.info(f"Applied jobs fetched successfully for candidate {candidate_id}")
 
