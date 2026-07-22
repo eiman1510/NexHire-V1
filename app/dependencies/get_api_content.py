@@ -43,4 +43,5 @@ def get_request_context():
             "auth_type": get_auth_type(),
         }
 
+
     return dependency

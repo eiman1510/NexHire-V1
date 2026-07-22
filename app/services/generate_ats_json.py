@@ -5,9 +5,9 @@ def parse_resume_from_s3_url(presigned_url: str):
 
     # Download PDF from S3
     pdf_response = requests.get(presigned_url)
-
     if pdf_response.status_code != 200:
         raise Exception("Failed to download resume")
+    print(1)
 
     # Send PDF to Resume Parser API
     parser_response = requests.post(

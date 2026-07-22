@@ -8,6 +8,7 @@ router = APIRouter()
 def test_resume_parser(resume_key: str):
 
     resume_url = get_file_url(resume_key)
+    print(resume_url)
     parsed_resume = parse_resume_from_s3_url(resume_url)
 
     return {
