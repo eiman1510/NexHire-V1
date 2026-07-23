@@ -32,7 +32,10 @@ router = APIRouter()
 
 
 @router.post("/apply/{job_id}")
-def job_apply(job_id: str, context=Depends(get_request_context())):
+def job_apply(
+    job_id: str,
+    context=Depends(get_request_context()),
+):
     return job_apply_helper(job_id, context["user"])
 
 

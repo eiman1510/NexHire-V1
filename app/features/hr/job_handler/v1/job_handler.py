@@ -99,6 +99,19 @@ def add_job_helper(job_data: Job, user):
                 error_code=1,
             )
 
+        if not job_data.minimum_education.strip():
+            logger.warning(
+                f"Empty minimum education provided by user {current_user}"
+            )
+
+            return api_response(
+                status_code=400,
+                data=None,
+                message="Minimum education is required",
+                api_source="job handler in hr",
+                error_code=1,
+            )
+
         if job_data.last_date_to_apply <= datetime.now(timezone.utc):
             logger.warning(
                 f"Invalid application deadline provided by user {current_user}"
@@ -122,6 +135,8 @@ def add_job_helper(job_data: Job, user):
             last_date_to_apply=job_data.last_date_to_apply,
             skills_required=job_data.skills_required,
             required_experience=job_data.required_experience,
+            minimum_education=job_data.minimum_education,
+            threshold=job_data.threshold,
             job_type=job_data.job_type,
             created_at=datetime.now(timezone.utc),
             created_by=str(current_user),

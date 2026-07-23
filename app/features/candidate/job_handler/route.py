@@ -10,7 +10,7 @@ def get_candidate_jobs():
 
 
 # for getting jobs based on some specific filter
-@router.get("/getFilteredJob")
+@router.get("/get_filtered_job")
 def get_filtered_candidate_jobs(
     min_sal: int | None = None,
     experience: int | None = None,

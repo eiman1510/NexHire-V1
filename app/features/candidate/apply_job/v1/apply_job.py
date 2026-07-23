@@ -6,6 +6,13 @@ from db_functions.application import (
     find_applications_by_candidate_id,
 )
 from db_functions.jobs import get_job_by_id
+from db_functions.user import find_user_by_id
+from services.generate_ats_json import (
+    calculate_ats_score,
+    format_resume_data,
+    parse_resume_from_s3_url,
+)
+from services.storage import get_file_url
 from utils.response import api_response
 from utils.serialization import serialize_mongo_document
 from logging_config import logger
@@ -24,6 +31,18 @@ def job_apply_helper(job_id: str, user):
 
         logger.info(f"Candidate {candidate_id} attempting to apply for job {job_id}")
 
+        candidate = find_user_by_id(candidate_id)
+        resume_key = candidate.get("resume_key") if candidate else None
+
+        if not resume_key:
+            return api_response(
+                status_code=201,
+                message="Please upload your resume before applying",
+                data=None,
+                api_source="candidate apply job",
+                error_code=1,
+            )
+
         if find_application_by_job_and_candidate(job_id, candidate_id):
             logger.warning(
                 f"Duplicate application attempt. Candidate={candidate_id}, Job={job_id}"
@@ -37,9 +56,27 @@ def job_apply_helper(job_id: str, user):
                 error_code=1,
             )
 
+        resume_url = get_file_url(resume_key)
+        parser_response = parse_resume_from_s3_url(resume_url)
+        parsed_resume = format_resume_data(parser_response)
+        ats_result = calculate_ats_score(
+            parsed_resume,
+            job_id,
+        )
+
+        if not ats_result["selected"]:
+            return api_response(
+                status_code=202,
+                message="You are not eligible for this job",
+                data=ats_result,
+                api_source="candidate apply job",
+                error_code=1,
+            )
+
         new_job = JobApply(
             candidate_id=candidate_id,
             job_id=job_id,
+            parsed_resume=parsed_resume,
             status="Applied",
             applied_at=datetime.now(timezone.utc),
         )
@@ -52,7 +89,10 @@ def job_apply_helper(job_id: str, user):
 
         return api_response(
             status_code=200,
-            data=new_job,
+            data={
+                "application": new_job.model_dump(),
+                "parsed_resume": parsed_resume,
+            },
             message="Applied to job successfully",
             api_source="candidate apply job",
         )

@@ -8,6 +8,8 @@ class Job(BaseModel):
     last_date_to_apply: datetime
     skills_required: list
     required_experience: int
+    minimum_education: str
+    threshold: float
     job_type: str
     created_at: datetime
     created_by: str
@@ -18,7 +20,7 @@ class Job(BaseModel):
 class JobApply(BaseModel):
     candidate_id: str
     job_id: str
-    # ats_percentage: float
+    parsed_resume: dict
     status: str
     is_active: bool = True
     applied_at: datetime

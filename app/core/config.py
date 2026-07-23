@@ -28,4 +28,12 @@ SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
 MONGO_URL = os.getenv("MONGO_URL")
 
-RESUME_API_KEY = os.getenv("RESUME_API_KEY")
+AFFINDA_API_KEY = os.getenv("AFFINDA_API_KEY")
+AFFINDA_WORKSPACE_ID = os.getenv("AFFINDA_WORKSPACE_ID")
+AFFINDA_RESUME_DOCUMENT_TYPE_ID = os.getenv(
+    "AFFINDA_RESUME_DOCUMENT_TYPE_ID"
+)
+AFFINDA_JOB_DESCRIPTION_DOCUMENT_TYPE_ID = os.getenv(
+    "AFFINDA_JOB_DESCRIPTION_DOCUMENT_TYPE_ID"
+)
+AFFINDA_BASE_URL = os.getenv("AFFINDA_BASE_URL") or "https://api.affinda.com/v3"
