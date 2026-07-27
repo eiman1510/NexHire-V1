@@ -7,6 +7,7 @@ from core.config import (
     AFFINDA_RESUME_DOCUMENT_TYPE_ID,
 )
 from db_functions.jobs import get_job_by_id
+from services.education_matching import education_matches
 from services.storage import get_file_url
 
 def parse_resume_from_s3_url(presigned_url: str):
@@ -154,18 +155,13 @@ def calculate_ats_score(
         )
     )
 
-    candidate_education = ""
-
     education = parsed_resume.get("education", [])
-
-    if education:
-        candidate_education = (
-            education[0].get("degree") or ""
-        ).lower()
-
-    required_education = (
-        job.get("minimum_education") or ""
-    ).lower()
+    candidate_degrees = [
+        entry.get("degree")
+        for entry in education
+        if isinstance(entry, dict) and entry.get("degree")
+    ]
+    required_education = job.get("minimum_education") or ""
 
     # Skill Matching
     matched_skills = candidate_skills.intersection(
@@ -183,10 +179,8 @@ def calculate_ats_score(
     skill_check = 1 if ats_score >= threshold else 0
 
     # Education Matching
-    education_check = (
-        1
-        if required_education in candidate_education
-        else 0
+    education_check = int(
+        education_matches(required_education, candidate_degrees)
     )
 
     selected = (
