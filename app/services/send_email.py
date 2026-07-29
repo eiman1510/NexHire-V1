@@ -4,7 +4,7 @@ from core.config import EMAIL_USER, EMAIL_PASSWORD
 
 
 def send_email(to_email, subject, body):
-
+    print("EMAIL:", EMAIL_USER)
     msg = MIMEText(body)
 
     msg["Subject"] = subject
