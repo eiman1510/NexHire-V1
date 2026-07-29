@@ -185,3 +185,38 @@ export function hireCandidate(token, applicationId, details) {
     },
   });
 }
+
+// Admin functions
+export async function adminLogin(password) {
+  const result = await request("/admin/admin_login", {
+    method: "POST",
+    body: { password },
+  });
+  return result.data;
+}
+
+export async function addHR(email) {
+  const result = await request("/admin/add_hr", {
+    method: "POST",
+    body: { email },
+  });
+  return result.data;
+}
+
+export async function deleteHR(email) {
+  const result = await request("/admin/delete_hr", {
+    method: "DELETE",
+    query: { email },
+  });
+  return result.data;
+}
+
+export async function getApprovedHRs() {
+  const result = await request("/admin/app_hr");
+  return Array.isArray(result.data) ? result.data : [];
+}
+
+export async function getRegisteredHRs() {
+  const result = await request("/admin/get_registered_hrs");
+  return Array.isArray(result.data) ? result.data : [];
+}

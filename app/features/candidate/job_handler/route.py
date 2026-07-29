@@ -1,3 +1,8 @@
+"""
+this is the job hanlder in candidate
+candidate can view all jobs and even search job based on some filter
+"""
+
 from fastapi import APIRouter
 from .v1.job_handler import get_filtered_jobs_helper, get_job_details_helper
 

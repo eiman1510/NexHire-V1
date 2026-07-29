@@ -10,9 +10,10 @@ from db_functions.jobs import get_job_by_id
 from services.education_matching import education_matches
 from services.storage import get_file_url
 
+
 def parse_resume_from_s3_url(presigned_url: str):
     """
-    Send S3 resume URL to Affinda and return parsed resume data.
+    Sends the S3 resume URL to Affinda API and returns the parsed resume data.
     """
 
     response = requests.post(
@@ -28,6 +29,7 @@ def parse_resume_from_s3_url(presigned_url: str):
         timeout=120,
     )
 
+    # Raise an error if the request fails
     response.raise_for_status()
 
     return response.json()
@@ -35,23 +37,21 @@ def parse_resume_from_s3_url(presigned_url: str):
 
 def format_resume_data(parser_response):
     """
-    Extract ATS-related resume information.
+    Extracts only the ATS-related information from Affinda's response.
     """
 
     resume = parser_response.get("data") or {}
 
-    # Skills
+    # Extract unique skills
     skills = []
 
     for skill in resume.get("skill") or []:
-        parsed = skill.get("parsed") or {}
-
-        skill_name = parsed.get("name")
+        skill_name = (skill.get("parsed") or {}).get("name")
 
         if skill_name and skill_name not in skills:
             skills.append(skill_name)
 
-    # Education
+    # Extract education details
     education = []
 
     for edu in resume.get("education") or []:
@@ -70,7 +70,7 @@ def format_resume_data(parser_response):
             }
         )
 
-    # Work Experience
+    # Extract work experience
     experience = []
 
     for exp in resume.get("workExperience") or []:
@@ -89,27 +89,20 @@ def format_resume_data(parser_response):
             }
         )
 
-    # Email
+    # Get the first email if available
     emails = resume.get("email") or []
+    email = emails[0].get("parsed") if emails else None
 
-    email = None
-    if emails:
-        email = emails[0].get("parsed")
-
-    # Phone Number
+    # Get the first phone number if available
     phone_numbers = resume.get("phoneNumber") or []
-
-    phone = None
-    if phone_numbers:
-        phone = (phone_numbers[0].get("parsed") or {}).get(
-            "formattedNumber"
-        )
+    phone = (
+        (phone_numbers[0].get("parsed") or {}).get("formattedNumber")
+        if phone_numbers
+        else None
+    )
 
     return {
-        "candidateName": (
-            (resume.get("candidateName") or {})
-            .get("raw")
-        ),
+        "candidateName": (resume.get("candidateName") or {}).get("raw"),
         "email": email,
         "phoneNumber": phone,
         "location": resume.get("location"),
@@ -118,71 +111,83 @@ def format_resume_data(parser_response):
         "workExperience": experience,
     }
 
+
 def resume_parser(resume_key: str):
+    """
+    Gets the resume from S3, sends it to Affinda, and returns formatted data.
+    """
+
     resume_url = get_file_url(resume_key)
 
     parsed_resume = parse_resume_from_s3_url(resume_url)
-    data=format_resume_data(parsed_resume)
-    return data
 
-def calculate_ats_score(
-    parsed_resume: dict,
-    job_id: str,
-):
-   
+    return format_resume_data(parsed_resume)
 
+
+def calculate_ats_score(parsed_resume: dict, job_id: str):
+    """
+    Calculates the ATS score by comparing candidate skills and education
+    with the job requirements.
+    """
+
+    # Get job details from the database
     job = get_job_by_id(job_id)
 
     if job is None:
         raise ValueError(f"Job with ID {job_id} was not found")
 
+    # Use 50% if threshold is missing (older jobs)
     threshold = job.get("threshold")
-
-    # Jobs created before the threshold field was added use 50%.
     if threshold is None:
         threshold = 50.0
 
-    candidate_skills = set(
+    # Convert candidate skills to lowercase for comparison
+    candidate_skills = {
         skill.lower()
         for skill in parsed_resume.get("skills", [])
-    )
+    }
 
-    required_skills = set(
+    # Convert required skills to lowercase for comparison
+    required_skills = {
         skill.lower()
         for skill in job.get(
             "required_skills",
             job.get("skills_required", []),
         )
-    )
+    }
 
-    education = parsed_resume.get("education", [])
+    # Get candidate degrees
     candidate_degrees = [
         entry.get("degree")
-        for entry in education
+        for entry in parsed_resume.get("education", [])
         if isinstance(entry, dict) and entry.get("degree")
     ]
+
     required_education = job.get("minimum_education") or ""
 
-    # Skill Matching
-    matched_skills = candidate_skills.intersection(
-        required_skills
-    )
+    # Find matching skills
+    matched_skills = candidate_skills.intersection(required_skills)
 
+    # Calculate ATS score based on matched skills
     ats_score = 0
 
     if required_skills:
         ats_score = (
-            len(matched_skills)
-            / len(required_skills)
+            len(matched_skills) / len(required_skills)
         ) * 100
 
-    skill_check = 1 if ats_score >= threshold else 0
+    # Check if skill score meets the threshold
+    skill_check = int(ats_score >= threshold)
 
-    # Education Matching
+    # Check if education requirement is met
     education_check = int(
-        education_matches(required_education, candidate_degrees)
+        education_matches(
+            required_education,
+            candidate_degrees,
+        )
     )
 
+    # Candidate is selected only if both checks pass
     selected = (
         skill_check == 1
         and education_check == 1

@@ -1,3 +1,9 @@
+"""
+this is the router used to update the profile of user 
+the main dashboard pages allows user to input his data for the 1st time and then ask later he can anytime update
+this data is mainly resume,year or experience or skills as these things may change over time
+"""
+
 from fastapi import APIRouter, UploadFile, File, Form, Depends
 from dependencies.get_api_content import get_request_context
 from .v1.candidate_info import (

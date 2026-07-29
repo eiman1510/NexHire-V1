@@ -20,7 +20,7 @@ from services.send_invite import create_calendar_event
 from logging_config import logger
 from utils.serialization import serialize_mongo_document
 
-
+#get data needed to send email
 def get_application_email_context(application_id: str):
     application = get_application_by_id(application_id)
     if not application:

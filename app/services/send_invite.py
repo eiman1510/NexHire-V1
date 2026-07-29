@@ -9,7 +9,7 @@ from core.config import SCOPES
 BASE_DIR = Path(__file__).resolve().parent.parent
 TOKEN_FILE = BASE_DIR / "token.json"
 
-
+#get keys to send email from the config file
 def get_credentials():
     credentials = Credentials.from_authorized_user_file(str(TOKEN_FILE), SCOPES)
 
@@ -21,7 +21,7 @@ def get_credentials():
 
     return credentials
 
-
+#set up the calender invite logic here 
 def create_calendar_event(
     candidate_email: str,
     title: str,
