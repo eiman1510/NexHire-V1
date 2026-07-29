@@ -1,7 +1,6 @@
 import time
 from fastapi import Request
 
-@app.middleware("http")
 async def log_request_time(request: Request, call_next):
     # Start timer
     start_time = time.time()
