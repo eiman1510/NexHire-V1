@@ -1,10 +1,10 @@
 import smtplib
 from email.mime.text import MIMEText
 from core.config import EMAIL_USER, EMAIL_PASSWORD
-
+from logging_config import logger
 
 def send_email(to_email, subject, body):
-    print("EMAIL:", EMAIL_USER)
+    logger.info("Inside email")
     msg = MIMEText(body)
 
     msg["Subject"] = subject
