@@ -18,7 +18,7 @@ allowed_origins = [
     origin.strip()
     for origin in os.getenv(
         "FRONTEND_ORIGINS",
-        "http://localhost:5173,http://127.0.0.1:5173",
+        "http://localhost:5173,http://127.0.0.1:5173,https://nexhire-v1-production.up.railway.app,https://nexhire.eimanasif15.workers.dev",
     ).split(",")
     if origin.strip()
 ]

@@ -20,7 +20,7 @@ def send_email(to_email, subject, body):
     # Test network connectivity
     try:
         logger.info("Testing connection to smtp.gmail.com:587")
-        socket.create_connection(("smtp.gmail.com", 587), timeout=10)
+        socket.create_connection(("smtp.gmail.com", 587), timeout=100)
         logger.info("SMTP socket connection successful")
     except Exception as e:
         logger.exception(f"SMTP socket connection failed: {e}")
