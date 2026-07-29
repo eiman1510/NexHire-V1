@@ -23,7 +23,11 @@ ALGORITHM = os.getenv("ALGORITHM")
 EMAIL_USER = os.getenv("EMAIL_USER")
 EMAIL_PASSWORD = os.getenv("EMAIL_PASSWORD")
 
-SERVICE_ACCOUNT_FILE = BASE_DIR / "google_calendar_secret.json"
+
+GOOGLE_CALENDER_TOKEN=os.getenv("GOOGLE_CALENDER_TOKEN")
+GOOGLE_CALENDAR_SECRET=os.getenv("GOOGLE_CALENDAR_SECRET")
+
+SERVICE_ACCOUNT_FILE = BASE_DIR / GOOGLE_CALENDAR_SECRET
 SCOPES = ["https://www.googleapis.com/auth/calendar"]
 
 MONGO_URL = os.getenv("MONGO_URL")
