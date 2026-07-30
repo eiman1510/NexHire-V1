@@ -28,7 +28,10 @@ GOOGLE_CALENDER_TOKEN=os.getenv("GOOGLE_CALENDER_TOKEN")
 GOOGLE_CALENDAR_SECRET=os.getenv("GOOGLE_CALENDAR_SECRET")
 
 SERVICE_ACCOUNT_FILE = BASE_DIR / GOOGLE_CALENDAR_SECRET
-SCOPES = ["https://www.googleapis.com/auth/calendar"]
+SCOPES = [
+    "https://www.googleapis.com/auth/calendar",
+    "https://www.googleapis.com/auth/gmail.send",
+]
 
 MONGO_URL = os.getenv("MONGO_URL")
 
