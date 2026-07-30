@@ -43,3 +43,5 @@ AFFINDA_JOB_DESCRIPTION_DOCUMENT_TYPE_ID = os.getenv(
 AFFINDA_BASE_URL = os.getenv("AFFINDA_BASE_URL") or "https://api.affinda.com/v3"
 
 ADMIN_PASS=os.getenv("ADMIN_PASS")
+
+RESEND_API_KEY = os.getenv("RESEND_API_KEY")
