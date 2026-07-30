@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => {
       port: 5173,
       proxy: {
         "/api": {
-          target: env.VITE_API_PROXY_TARGET || "https://nexhire-v1-production.up.railway.app",
+          target: env.VITE_API_PROXY_TARGET || "https://nexhire-402958078661.europe-west1.run.app",
           changeOrigin: true,
           secure: true,
           rewrite: (path) => path.replace(/^\/api/, ""),
