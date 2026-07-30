@@ -87,6 +87,9 @@ def get_credentials():
             SCOPES,
         )
 
+        logger.info(f"Configured scopes: {SCOPES}")
+        logger.info(f"Token scopes: {credentials.scopes}")
+
         if credentials.expired and credentials.refresh_token:
             logger.info("Refreshing Google access token")
             credentials.refresh(Request())
