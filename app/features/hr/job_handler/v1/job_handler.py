@@ -199,6 +199,7 @@ def update_job_helper(
     job_id: str,
     status: str | None = None,
     last_date_to_apply: datetime | None = None,
+    threshold: float | None = None,
     user=None,
 ):
     try:
@@ -242,7 +243,7 @@ def update_job_helper(
             )
 
         if status == "Open":
-            return activate_job_helper(job_id, user, last_date_to_apply)
+            return activate_job_helper(job_id, user, last_date_to_apply, threshold)
 
         # --------------------------------------------------
         # Build Update Data
@@ -285,6 +286,20 @@ def update_job_helper(
                 )
 
             update_data["last_date_to_apply"] = last_date_to_apply
+
+        if threshold is not None:
+            if not 0 <= threshold <= 100:
+                logger.warning(f"Invalid ATS threshold for Job ID: {job_id}")
+
+                return api_response(
+                    status_code=400,
+                    data=None,
+                    message="ATS threshold must be between 0 and 100",
+                    api_source="job handler in hr",
+                    error_code=1,
+                )
+
+            update_data["threshold"] = threshold
 
         if not update_data:
             logger.warning(f"No update fields provided. Job ID: {job_id}")
@@ -346,6 +361,7 @@ def activate_job_helper(
     job_id: str,
     user,
     last_date_to_apply: datetime | None = None,
+    threshold: float | None = None,
 ):
     try:
         current_job = find_job_by_field("_id", ObjectId(job_id))
@@ -404,6 +420,16 @@ def activate_job_helper(
         update_data = {"status": "Open"}
         if last_date_to_apply is not None:
             update_data["last_date_to_apply"] = last_date_to_apply
+        if threshold is not None:
+            if not 0 <= threshold <= 100:
+                return api_response(
+                    status_code=400,
+                    data=None,
+                    message="ATS threshold must be between 0 and 100",
+                    api_source="job handler in hr",
+                    error_code=1,
+                )
+            update_data["threshold"] = threshold
 
         update_job_by_id(job_id, update_data)
         application_update = set_job_applications_active(job_id, True)

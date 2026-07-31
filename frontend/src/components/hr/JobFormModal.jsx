@@ -64,10 +64,14 @@ export default function JobFormModal({ open, onClose, job, onSaved }) {
     try {
       let response;
       if (isEdit) {
-        const updates = {
-          last_date_to_apply: new Date(values.last_date_to_apply).toISOString(),
-        };
+        const updates = {};
+        if (values.last_date_to_apply !== job.last_date_to_apply) {
+          updates.last_date_to_apply = new Date(values.last_date_to_apply).toISOString();
+        }
         if (values.status !== job.status) updates.status = values.status;
+        if (Number(values.threshold) !== Number(job.threshold)) {
+          updates.threshold = Number(values.threshold);
+        }
         response = await updateJob(token, job._id, updates);
       } else {
         response = await createJob(token, {
@@ -103,9 +107,9 @@ export default function JobFormModal({ open, onClose, job, onSaved }) {
           <>
             <div className="info-box">
               <CalendarDays size={19} />
-              <p>The current backend supports updating job status and application deadline.</p>
+              <p>Update the role status, application deadline, and ATS threshold whenever the hiring plan changes.</p>
             </div>
-            <div className="form-cols two-cols">
+            <div className="form-cols three-cols">
               <FormField label="Job status">
                 <select
                   value={values.status}
@@ -113,6 +117,16 @@ export default function JobFormModal({ open, onClose, job, onSaved }) {
                 >
                   <option>Open</option><option>Paused</option><option>Closed</option>
                 </select>
+              </FormField>
+              <FormField label="ATS threshold" hint="0–100">
+                <input
+                  type="number"
+                  min="0"
+                  max="100"
+                  value={values.threshold}
+                  onChange={(event) => setValues({ ...values, threshold: event.target.value })}
+                  required
+                />
               </FormField>
               <FormField label="Application deadline">
                 <input

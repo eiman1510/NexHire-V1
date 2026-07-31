@@ -33,19 +33,21 @@ def update_job(
     job_id: str,
     status: str | None = None,
     last_date_to_apply: datetime | None = None,
+    threshold: float | None = None,
     context=Depends(get_request_context()),
 ):
     print(context)
-    return update_job_helper(job_id, status, last_date_to_apply, context["user"])
+    return update_job_helper(job_id, status, last_date_to_apply, threshold, context["user"])
 
 
 @router.put("/activate_job/{job_id}")
 def activate_job(
     job_id: str,
     last_date_to_apply: datetime | None = None,
+    threshold: float | None = None,
     context=Depends(get_request_context()),
 ):
-    return activate_job_helper(job_id, context["user"], last_date_to_apply)
+    return activate_job_helper(job_id, context["user"], last_date_to_apply, threshold)
 
 
 # -------------------------------------------------------------------
