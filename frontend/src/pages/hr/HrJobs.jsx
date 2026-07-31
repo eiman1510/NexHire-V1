@@ -115,14 +115,25 @@ export default function HrJobs() {
                   <span className={`status status-${job.status === "Open" ? "green" : "gray"}`}>
                     <i />{job.status}
                   </span>
-                  <button className="icon-btn" aria-label="More job options"><MoreHorizontal size={19} /></button>
+                  {/* <button className="icon-btn" aria-label="More job options"><MoreHorizontal size={19} /></button> */}
                 </header>
                 <div className="hr-job-info">
-                  <span><WalletCards size={16} /> {formatCurrency(job.pay)}</span>
-                  <span><UsersRound size={16} /> {count} applications</span>
-                  <span><CalendarDays size={16} /> Closes {formatDate(job.last_date_to_apply)}</span>
+                  <span>
+                    <WalletCards size={16} style={{ color: "#22c55e" }} />{" "}
+                    {formatCurrency(job.pay)}
+                  </span>
+
+                  <span>
+                    <UsersRound size={16} style={{ color: "#ec4899" }} />{" "}
+                    {count} applications
+                  </span>
+
+                  <span>
+                    <CalendarDays size={16} style={{ color: "#f59e0b" }} />{" "}
+                    Closes {formatDate(job.last_date_to_apply)}
+                  </span>
                 </div>
-                <p>{job.description}</p>
+                <p style={{fontSize:12}}>{job.description}</p>
                 <footer>
                   <Button size="sm" icon={Eye} onClick={() => setSelectedJob(job)}>
                     View applications

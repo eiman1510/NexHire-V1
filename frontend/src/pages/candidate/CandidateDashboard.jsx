@@ -130,11 +130,25 @@ export default function CandidateDashboard() {
                   <small>@{profile?.username || "username"}</small>
                 </div>
               </div>
-              <div className="details">
-                <div><Mail size={17} /><span>Email</span><strong>{profile?.email || "—"}</strong></div>
-                <div><BriefcaseBusiness size={17} /><span>Experience</span><strong>{profile?.experience ?? 0} years</strong></div>
-                <div><FilePlus2 size={17} /><span>Resume</span><strong>{hasProfile ? "Uploaded" : "Not uploaded"}</strong></div>
-              </div>
+            <div className="details">
+            <div>
+              <Mail size={17} style={{ color: "#ec4899" }} />
+              <span>Email</span>
+              <strong>{profile?.email || "—"}</strong>
+            </div>
+
+            <div>
+              <BriefcaseBusiness size={17} style={{ color: "#22c55e" }} />
+              <span>Experience</span>
+              <strong>{profile?.experience ?? 0} years</strong>
+            </div>
+
+            <div>
+              <FilePlus2 size={17} style={{ color: "#f59e0b" }} />
+              <span>Resume</span>
+              <strong>{hasProfile ? "Uploaded" : "Not uploaded"}</strong>
+            </div>
+          </div>
               <div className="profile-tags">
                 <span>Top skills</span>
                 <div>

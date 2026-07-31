@@ -237,8 +237,11 @@ input:focus, select:focus, textarea:focus {
 .side-tip > span { font-size: 9px; text-transform: uppercase; letter-spacing: .1em; color: var(--primary); font-weight: 800; }
 .side-tip > strong { display: block; font-family: "Manrope"; line-height: 1.45; font-size: 12px; margin: 7px 0 14px; }
 .logout-btn {
-  display: flex; align-items: center; gap: 11px; border: 0; background: transparent;
-  color: #817e8c; font-size: 13px; font-weight: 600; cursor: pointer; padding: 18px 12px 2px;
+  display: flex; align-items: center; gap: 11px; border: 0; background: transparent;margin: 10px;
+  color: #070707; font-size: 13px; font-weight: 600; cursor: pointer; padding: 18px 12px 12px;
+}
+.logout-btn:hover{
+  background-color: rgb(226, 109, 109);
 }
 .main { margin-left: 258px; min-width: 0; }
 .topbar {
@@ -249,8 +252,8 @@ input:focus, select:focus, textarea:focus {
 .menu-btn { display: none; margin-right: 12px; }
 .topbar > div { flex: 1; }
 .topbar small, .topbar strong { display: block; }
-.topbar small { color: var(--muted); font-size: 10px; margin-bottom: 2px; }
-.topbar strong { font-size: 13px; }
+.topbar small { color: var(--muted); font-size: 12px; margin-bottom: 2px; }
+.topbar strong { font-size: 14px; }
 .top-avatar {
   width: 36px; height: 36px; display: grid; place-items: center; border-radius: 11px;
   background: var(--peach); color: #915c4d; font-size: 10px; font-weight: 800;
@@ -330,6 +333,16 @@ input:focus, select:focus, textarea:focus {
 .list-icon { width: 37px; height: 37px; display: grid; place-items: center; border-radius: 11px; background: var(--lavender-soft); color: var(--primary); }
 .compact-list strong, .compact-list small { display: block; }
 .compact-list strong { font-size: 13px; }
+.job-link-button { background: none; border: 0; padding: 0; text-align: left; font: inherit; font-size: 13px; font-weight: 700; color: var(--primary-dark); cursor: pointer; }
+.job-link-button:hover { color: var(--primary); }
+.job-preview-card { margin-top: 14px; padding: 14px; border: 1px solid var(--line); border-radius: 14px; background: #faf8ff; display: flex; flex-direction: column; gap: 10px; position: relative; }
+.job-preview-close { position: absolute; top: 10px; right: 10px; border: 0; background: none; color: var(--muted); font-size: 18px; cursor: pointer; line-height: 1; }
+.job-preview-close:hover { color: var(--primary); }
+.job-preview-card h4 { margin: 4px 0 0; font-size: 15px; }
+.job-preview-card p { margin: 0; color: var(--muted); font-size: 12px; line-height: 1.6; }
+.job-preview-meta { display: flex; flex-wrap: wrap; gap: 8px; }
+.job-preview-meta span { padding: 6px 8px; border-radius: 999px; background: var(--lavender-soft); color: var(--primary-dark); font-size: 10px; font-weight: 700; }
+.job-preview-link { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; font-weight: 700; color: var(--primary); }
 .compact-list small { font-size: 10px; color: var(--muted); margin-top: 3px; }
 .pipe-box { background: linear-gradient(150deg, #fff, #f3f0ff); }
 .pipe-box h3 { font-size: 24px; margin: 34px 0 10px; }
@@ -376,7 +389,7 @@ input:focus, select:focus, textarea:focus {
 .status-green { color: #3e8161; background: #e2f6ea; }
 .status-blue { color: #477da7; background: #e6f3ff; }
 .status-yellow { color: #9a7225; background: #fff3d2; }
-.status-purple { color: #6651bd; background: #eeeaff; }
+.status-purple { color: #6651bd; background: #f9f9fa; }
 .status-red { color: #ad4f59; background: #ffe6e6; }
 .status-gray { color: #777483; background: #f0eff3; }
 
@@ -480,7 +493,7 @@ input:focus, select:focus, textarea:focus {
 .hr-job header small { color: var(--muted); font-size: 10px; }
 .hr-job h3 { margin: 2px 0 0; font-size: 17px; }
 .hr-job-info { display: flex; gap: 22px; margin: 17px 0 12px; padding: 11px 0; border-block: 1px solid #f1eff4; }
-.hr-job-info span { display: flex; gap: 6px; align-items: center; color: #777485; font-size: 10px; }
+.hr-job-info span { display: flex; gap: 6px; align-items: center; color: #777485; font-size: 12px; }
 .hr-job > p { color: var(--muted); font-size: 11px; line-height: 1.6; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .hr-job > footer { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; }
 .hr-job > footer > div { display: flex; gap: 3px; }
@@ -513,7 +526,7 @@ input:focus, select:focus, textarea:focus {
 /* Pipeline */
 .pipe-tools { margin-bottom: 16px; display: flex; align-items: center; justify-content: space-between; gap: 15px; }
 .pipe-tabs { display: flex; padding: 5px; gap: 3px; background: #efedf4; border-radius: 13px; overflow-x: auto; }
-.pipe-tabs button { border: 0; background: transparent; border-radius: 9px; padding: 9px 11px; display: flex; align-items: center; gap: 7px; color: #777483; font-size: 10px; font-weight: 700; white-space: nowrap; cursor: pointer; }
+.pipe-tabs button { border: 0; background: transparent; border-radius: 9px; padding: 9px 11px; display: flex; align-items: center; gap: 7px; color: #777483; font-size: 12px; font-weight: 700; white-space: nowrap; cursor: pointer; }
 .pipe-tabs button.active { background: #fff; color: var(--primary-dark); box-shadow: 0 3px 10px rgba(55,48,78,.08); }
 .pipe-tabs button span { border-radius: 999px; background: rgba(108,90,199,.1); padding: 2px 6px; font-size: 8px; }
 .table-box { border: 1px solid var(--line); border-radius: 18px; background: #fff; overflow: hidden; }
@@ -524,8 +537,8 @@ input:focus, select:focus, textarea:focus {
 .pipe-person { display: flex; align-items: center; gap: 10px; }
 .pipe-person > span { width: 36px; height: 36px; display: grid; place-items: center; border-radius: 11px; background: var(--peach); color: #9a6252; }
 .pipe-row strong, .pipe-row small { display: block; }
-.pipe-row strong { font-size: 11px; }
-.pipe-row small { color: var(--muted); font-size: 9px; margin-top: 3px; }
+.pipe-row strong { font-size: 13px; }
+.pipe-row small { color: var(--muted); font-size: 11px; margin-top: 3px; }
 .bottom-actions { position: fixed; z-index: 120; bottom: 25px; right: 25px; display: flex; gap: 9px; background: #fff; border-radius: 15px; padding: 10px; box-shadow: var(--shadow-lg); }
 
 /* Feedback and utility */

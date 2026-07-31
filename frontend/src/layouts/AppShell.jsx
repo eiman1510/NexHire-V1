@@ -1,4 +1,4 @@
-import { createElement, useState } from "react";
+import { createElement, useState, useRef, useEffect } from "react";
 import { NavLink, Outlet, useLocation, useNavigate } from "react-router-dom";
 import {
   BriefcaseBusiness,
@@ -38,7 +38,20 @@ export default function AppShell() {
   const navigate = useNavigate();
   const nav = role === "hr" ? hrNav : candidateNav;
   const currentPage = nav.find((item) => location.pathname.startsWith(item.to));
-  const roleName = role === "hr" ? "People team" : "Candidate";
+  const roleName = role === "hr" ? "Recruiters" : "Candidate";
+  const [profileOpen, setProfileOpen] = useState(false);
+const profileRef = useRef(null);
+
+useEffect(() => {
+  function handleClickOutside(event) {
+    if (profileRef.current && !profileRef.current.contains(event.target)) {
+      setProfileOpen(false);
+    }
+  }
+
+  document.addEventListener("mousedown", handleClickOutside);
+  return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   function handleLogout() {
     logout();
@@ -66,7 +79,7 @@ export default function AppShell() {
             <strong>NexHire workspace</strong>
             <small>{roleName}</small>
           </div>
-          <ChevronDown size={15} />
+           
         </div>
 
         <nav className="side-nav" aria-label="Primary navigation">
@@ -93,11 +106,11 @@ export default function AppShell() {
               ? "Thoughtful hiring starts with clear next steps."
               : "Complete profiles make stronger first impressions."}
           </strong>
-          <div className="mini-avatars">
+          {/* <div className="mini-avatars">
             <i>NS</i>
             <i>JR</i>
             <i>+8</i>
-          </div>
+          </div> */}
         </div>
 
         <button className="logout-btn" type="button" onClick={handleLogout}>
@@ -128,7 +141,8 @@ export default function AppShell() {
             <small>{roleName} workspace</small>
             <strong>{currentPage?.label || "NexHire"}</strong>
           </div>
-          <span className="top-avatar">{getInitials(roleName)}</span>
+          {/* <span className="top-avatar">{getInitials(roleName)}</span> */}
+          
         </header>
         <main className="page">
           <Outlet />

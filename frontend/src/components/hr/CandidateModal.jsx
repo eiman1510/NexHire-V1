@@ -38,7 +38,7 @@ export default function CandidateModal({
             <h3>{getCandidateName(application)}</h3>
             <p>{candidate.email || parsed.email || "Email not available"}</p>
           </div>
-          <StatusBadge status={application.status} />
+          {/* <StatusBadge status={application.status} /> */}
         </header>
         <div className="person-facts">
           <div><Mail size={18} /><span>Contact</span><strong>{candidate.email || "Not listed"}</strong></div>

@@ -1,4 +1,4 @@
-const API_URL = import.meta.env.VITE_API_BASE_URL || "https://nexhire-402958078661.europe-west1.run.app";
+const API_URL = import.meta.env.VITE_API_BASE_URL || "https://nexhire-v1-production.up.railway.app/";
 
 export class ApiError extends Error {
   constructor(message, status = 500, data = null) {
